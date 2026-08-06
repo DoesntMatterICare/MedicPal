@@ -2,7 +2,7 @@ import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import Constants from "expo-constants";
-import { LogIn, LockKeyhole, ShieldCheck } from "lucide-react-native";
+import { FlaskConical, LogIn, LockKeyhole, ShieldCheck } from "lucide-react-native";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
@@ -31,6 +31,24 @@ export default function LoginScreen() {
     redirectUri,
     scopes: ["openid", "profile", "email", "https://www.googleapis.com/auth/calendar.events"],
   });
+
+  const skipLoginForDevelopment = async () => {
+    setLoading(true);
+    await saveProfile({
+      googleId: "dev-only-user",
+      name: "Dev Tester",
+      email: "dev@medicpal.local",
+      photoUrl: "",
+      accessToken: "",
+      language: language || "en",
+      fontSize: 18,
+      highContrast: true,
+      ttsEnabled: true,
+      caregiverPhone: "",
+    });
+    speak("Development login complete");
+    router.replace("/(tabs)");
+  };
 
   useEffect(() => {
     if (response?.type !== "success") return;
@@ -69,6 +87,17 @@ export default function LoginScreen() {
       </View>
       <View style={styles.footer}>
         <BigButton testID="google-sign-in-button" label="Continue with Google" icon={LogIn} loading={loading} disabled={!configured} onPress={async () => { setError(""); await promptAsync(); }} />
+        {__DEV__ && (
+          <BigButton
+            testID="dev-skip-login-button"
+            label="Skip login (dev only)"
+            icon={FlaskConical}
+            variant="secondary"
+            disabled={loading}
+            onPress={skipLoginForDevelopment}
+            style={styles.devButton}
+          />
+        )}
         <Text style={styles.note}>Google sign-in is the only sign-in method.</Text>
       </View>
     </SafeAreaView>
@@ -88,5 +117,6 @@ const styles = StyleSheet.create({
   error: { marginTop: 18, color: colors.danger, fontSize: 17, fontWeight: "700" },
   setup: { marginTop: 18, color: colors.warning, fontSize: 17, lineHeight: 24, fontWeight: "800" },
   footer: { paddingBottom: 20 },
+  devButton: { marginTop: 12 },
   note: { textAlign: "center", marginTop: 14, color: colors.textSecondary, fontSize: 14 },
 });
