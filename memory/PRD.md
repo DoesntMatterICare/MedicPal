@@ -36,6 +36,10 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Secured Gemini behind FastAPI with strict JSON schema, low temperature, input validation, upstream retry protection, and no key exposure to the mobile bundle.
 - Added camera/notification permissions, OAuth environment placeholders, test credentials notes, backend tests, and mobile screenshot validation.
 
+### 2026-08-06 — Google Web OAuth Configuration
+- Configured the supplied Google Web OAuth client ID for browser-preview sign-in.
+- Android and iOS OAuth client IDs remain pending for native sign-in validation.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing

@@ -3,7 +3,7 @@ import Constants from "expo-constants";
 import { LogIn, LockKeyhole, ShieldCheck } from "lucide-react-native";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BigButton } from "@/components/BigButton";
 import { Speakable } from "@/components/Speakable";
@@ -13,13 +13,16 @@ import { colors, radii } from "@/src/theme";
 export default function LoginScreen() {
   const { language, saveProfile, speak } = useApp();
   const extra = Constants.expoConfig?.extra || {};
-  const configured = Boolean(extra.googleWebClientId || extra.googleAndroidClientId || extra.googleIosClientId);
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || extra.googleWebClientId || "";
+  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || extra.googleAndroidClientId || "";
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || extra.googleIosClientId || "";
+  const configured = Platform.OS === "web" ? Boolean(webClientId) : Platform.OS === "android" ? Boolean(androidClientId) : Boolean(iosClientId);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [, response, promptAsync] = Google.useAuthRequest({
-    webClientId: extra.googleWebClientId || "missing.apps.googleusercontent.com",
-    androidClientId: extra.googleAndroidClientId || "missing.apps.googleusercontent.com",
-    iosClientId: extra.googleIosClientId || "missing.apps.googleusercontent.com",
+    webClientId: webClientId || "missing.apps.googleusercontent.com",
+    androidClientId: androidClientId || "missing.apps.googleusercontent.com",
+    iosClientId: iosClientId || "missing.apps.googleusercontent.com",
     scopes: ["openid", "profile", "email", "https://www.googleapis.com/auth/calendar.events"],
   });
 
