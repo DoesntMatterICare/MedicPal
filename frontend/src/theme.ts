@@ -9,7 +9,6 @@ export const colors = {
   warning: "#E8A838",
   danger: "#C75146",
   white: "#FFFFFF",
-  navy: "#0E2B4A",
 };
 
 export const radii = { sm: 12, md: 18, lg: 24, pill: 999 };

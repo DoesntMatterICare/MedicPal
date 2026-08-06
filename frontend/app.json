@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#E5F5FA"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.emergent.medicpalhealth.k7ztqx",

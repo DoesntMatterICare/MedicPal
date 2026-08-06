@@ -98,7 +98,7 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.navy }, scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(5,19,35,0.28)" }, overlay: { flex: 1, justifyContent: "space-between" },
+  screen: { flex: 1, backgroundColor: colors.text }, scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(26,58,92,0.28)" }, overlay: { flex: 1, justifyContent: "space-between" },
   topBar: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16, paddingTop: 8 }, control: { minHeight: 60, minWidth: 90, borderRadius: 18, backgroundColor: "rgba(14,43,74,0.78)", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingHorizontal: 12 }, controlText: { color: colors.white, fontSize: 16, fontWeight: "800" },
   instructions: { alignItems: "center", paddingHorizontal: 24 }, cameraTitle: { color: colors.white, fontSize: 24, fontWeight: "900", textAlign: "center" }, cameraHint: { color: colors.white, fontSize: 17, fontWeight: "600", marginTop: 7, textAlign: "center" },
   frame: { height: 310, marginHorizontal: 24, borderRadius: 24, borderWidth: 4, borderColor: colors.white, overflow: "hidden" }, scanLine: { position: "absolute", left: 8, right: 8, top: "50%", height: 4, borderRadius: 2, backgroundColor: colors.secondary, shadowColor: colors.white, shadowOpacity: 1, shadowRadius: 8 },

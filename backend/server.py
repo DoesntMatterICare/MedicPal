@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -81,7 +83,21 @@ def _analyze_with_gemini(payload: MedicineScanRequest) -> MedicineScanResult:
         },
     }
     try:
-        response = requests.post(url, params={"key": api_key}, json=body, timeout=35)
+        retry_policy = Retry(
+            total=2,
+            connect=2,
+            read=2,
+            status=2,
+            backoff_factor=0.8,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["POST"],
+            raise_on_status=False,
+        )
+        session = requests.Session()
+        session.mount("https://", HTTPAdapter(max_retries=retry_policy))
+        response = session.post(url, params={"key": api_key}, json=body, timeout=35)
+        if not response.ok:
+            logger.warning("Gemini returned HTTP %s", response.status_code)
         response.raise_for_status()
         result = response.json()
         text = result["candidates"][0]["content"]["parts"][0]["text"]
