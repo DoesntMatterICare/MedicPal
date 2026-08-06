@@ -54,6 +54,10 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Added gallery selection for medicine boxes, bottles, blister strips, prescriptions, and labels, with 1024px JPEG preparation before analysis.
 - Added a strict safety boundary: Gemini reads visible printed text only and must not identify loose tablets from appearance.
 
+### 2026-08-06 — Gemini Credential Rotation
+- Replaced the server-side Gemini API credential supplied by the user.
+- Updated the configured model to `gemini-3.5-flash` because Google reports Gemini 2.5 Flash as unavailable to new users for this credential; 3.5 Flash was verified available.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing
