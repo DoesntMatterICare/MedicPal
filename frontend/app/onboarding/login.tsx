@@ -1,4 +1,6 @@
 import * as Google from "expo-auth-session/providers/google";
+import { makeRedirectUri } from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
 import Constants from "expo-constants";
 import { LogIn, LockKeyhole, ShieldCheck } from "lucide-react-native";
 import { router } from "expo-router";
@@ -10,6 +12,8 @@ import { Speakable } from "@/components/Speakable";
 import { useApp } from "@/src/context/AppContext";
 import { colors, radii } from "@/src/theme";
 
+WebBrowser.maybeCompleteAuthSession();
+
 export default function LoginScreen() {
   const { language, saveProfile, speak } = useApp();
   const extra = Constants.expoConfig?.extra || {};
@@ -17,12 +21,14 @@ export default function LoginScreen() {
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || extra.googleAndroidClientId || "";
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || extra.googleIosClientId || "";
   const configured = Platform.OS === "web" ? Boolean(webClientId) : Platform.OS === "android" ? Boolean(androidClientId) : Boolean(iosClientId);
+  const redirectUri = Platform.OS === "web" ? makeRedirectUri({ path: "auth/callback" }) : undefined;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [, response, promptAsync] = Google.useAuthRequest({
     webClientId: webClientId || "missing.apps.googleusercontent.com",
     androidClientId: androidClientId || "missing.apps.googleusercontent.com",
     iosClientId: iosClientId || "missing.apps.googleusercontent.com",
+    redirectUri,
     scopes: ["openid", "profile", "email", "https://www.googleapis.com/auth/calendar.events"],
   });
 

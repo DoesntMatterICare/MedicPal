@@ -38,6 +38,8 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 
 ### 2026-08-06 — Google Web OAuth Configuration
 - Configured the supplied Google Web OAuth client ID for browser-preview sign-in.
+- Added an explicit `/auth/callback` redirect and popup-completion route for deterministic Google Web OAuth.
+- Verified Google account sign-in opens with the Calendar events scope and no redirect URI mismatch.
 - Android and iOS OAuth client IDs remain pending for native sign-in validation.
 
 ## Prioritized Backlog
