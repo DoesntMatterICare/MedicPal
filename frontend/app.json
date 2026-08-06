@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.emergent.medicpalhealth.k7ztqx",
       "infoPlist": {
-        "NSCameraUsageDescription": "Photograph medicine labels for reminders."
+        "NSCameraUsageDescription": "Photograph medicine labels for reminders.",
+        "NSPhotoLibraryUsageDescription": "Choose medicine packaging photos for reminders."
       }
     },
     "android": {
@@ -22,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.emergent.medicpalhealth.k7ztqx",
-      "permissions": ["CAMERA", "POST_NOTIFICATIONS"]
+      "permissions": ["CAMERA", "POST_NOTIFICATIONS", "READ_MEDIA_IMAGES"]
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +33,7 @@
     "plugins": [
       "expo-router",
       "expo-camera",
+      "expo-image-picker",
       "expo-notifications",
       [
         "expo-splash-screen",

@@ -37,14 +37,18 @@ class MedicineScanResult(BaseModel):
 
 
 SCAN_PROMPT = """
-You are reading a medicine package label. Return only JSON matching the schema.
+You are reading visible printed text from medicine packaging. The image may show
+a box, bottle, blister strip, prescription, or label. Return only JSON matching
+the schema.
 Extract exactly what is visible; never infer, autocomplete, or guess.
 - medicine_name: brand or generic name, or null when unclear
 - expiry_date: DD/MM/YYYY, MM/YYYY, or YYYY, or null when absent/unclear
 - dosage: visible amount such as '1 tablet' or '5 ml syrup', or null
 - frequency_hint: visible directions about when/how often to take it, or null
 If any field is uncertain, return null for that field. Patient safety is more
-important than completeness. Do not provide medical advice.
+important than completeness. Never identify loose pills or tablets from shape,
+color, markings, or appearance alone. If no medicine name is clearly readable
+as printed text, medicine_name must be null. Do not provide medical advice.
 """.strip()
 
 

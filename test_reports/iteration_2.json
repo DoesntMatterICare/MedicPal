@@ -1,0 +1,53 @@
+{
+  "summary": "Validated backend and Expo web mobile preview for medicine packaging upload flows using public preview URL. Readable upload reached confirmation, unreadable image produced safe state, and replacement upload recovered successfully.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Native gallery permission denied/blocked recovery",
+        "issue": "Could not fully verify denied/blocked gallery permission + Open Settings branch in web preview because Platform.OS==='web' bypasses native media permission APIs.",
+        "affected_testIDs": [
+          "request-photo-permission-button",
+          "open-photo-settings-button",
+          "confirm-request-photo-permission-button",
+          "confirm-open-photo-settings-button"
+        ]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_medicpal_api.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/ui_iteration/preview_home_mobile.jpeg",
+    "/app/test_reports/ui_iteration/permission_sheet_upload_result.jpeg",
+    "/app/test_reports/ui_iteration/unreadable_card_with_warning.jpeg",
+    "/app/test_reports/ui_iteration/unreadable_recovered_confirmation.jpeg"
+  ],
+  "action_items": [
+    "Run one native-device regression for denied/blocked photo permission and Open Settings recovery paths on scan + unreadable screens.",
+    "Keep EXPO_BACKEND_URL contract aligned with frontend config lookup to avoid environment drift in future runs."
+  ],
+  "critical_code_review_comments": [
+    "Backend SCAN_PROMPT explicitly enforces visible printed text extraction and prohibits loose tablet identification by appearance.",
+    "Image preprocessing path is implemented in both camera capture and gallery select with max width 1024 and JPEG compress 0.8.",
+    "frontend/services/gemini.ts still prefers EXPO_PUBLIC_BACKEND_URL fallback chain; platform contract expects EXPO_BACKEND_URL/extra.EXPO_BACKEND_URL consistency."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_2.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "92%"
+  },
+  "seed_data_creation": "No persistent seed data created.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Readable packaging upload and unreadable->replacement recovery are passing on web preview. One automation false start occurred when using wrong upload entrypoint under camera permission modal; use camera-sheet-upload-button path in web runs.",
+  "rca_of_issue": "RCA: Native media-permission denied/blocked flow cannot be deterministically exercised in Expo web because the implementation bypasses native permission requests on web (Platform.OS === 'web'). Mitigation: validate these branches on Android/iOS preview/dev build where ImagePicker permission APIs are active."
+}

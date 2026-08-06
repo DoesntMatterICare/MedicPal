@@ -2,7 +2,7 @@ import Constants from "expo-constants";
 import type { ScanResult } from "@/src/types";
 
 export async function analyzeMedicine(imageBase64: string): Promise<ScanResult> {
-  const backendUrl = Constants.expoConfig?.extra?.EXPO_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl;
+  const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.EXPO_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl;
   if (!backendUrl) throw new Error("MedicPal service is not configured");
   const response = await fetch(`${backendUrl}/api/analyze-medicine`, {
     method: "POST",

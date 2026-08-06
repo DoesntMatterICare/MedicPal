@@ -1,6 +1,7 @@
 import * as Notifications from "expo-notifications";
+import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { ArrowLeft, Bell, CalendarClock, Check, Edit3, RotateCcw, Settings } from "lucide-react-native";
+import { ArrowLeft, Bell, CalendarClock, Check, Edit3, RotateCcw, Settings, Upload } from "lucide-react-native";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
@@ -9,6 +10,9 @@ import { BigButton } from "@/components/BigButton";
 import { Speakable } from "@/components/Speakable";
 import { createCalendarEvents } from "@/services/calendar";
 import { clearPendingScan, getPendingScan, saveMedicine } from "@/services/db";
+import { analyzeMedicine } from "@/services/gemini";
+import { chooseMedicineImage } from "@/services/images";
+import { savePendingScan } from "@/services/db";
 import { scheduleMedicineNotifications } from "@/services/notifications";
 import { useApp } from "@/src/context/AppContext";
 import { colors, radii } from "@/src/theme";
@@ -37,6 +41,10 @@ export default function ConfirmScreen() {
   const [saving, setSaving] = useState(false);
   const [permissionSheet, setPermissionSheet] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [photoPermissionSheet, setPhotoPermissionSheet] = useState(false);
+  const [photoBlocked, setPhotoBlocked] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const times = useMemo(() => parseSchedule(result?.frequency_hint), [result?.frequency_hint]);
   useEffect(() => { void getPendingScan().then((scan) => { setPending(scan); setResult(scan?.result || null); if (!scan?.result.medicine_name) speak("Could not read clearly. Please retake in better light."); }); }, [speak]);
 
@@ -76,6 +84,35 @@ export default function ConfirmScreen() {
     setBlocked(!result.canAskAgain);
   };
 
+  const uploadReplacement = async () => {
+    setPhotoPermissionSheet(false); setUploading(true); setUploadError("");
+    try {
+      const selected = await chooseMedicineImage();
+      if (!selected) return;
+      speak("Reading your medicine packaging");
+      const nextResult = await analyzeMedicine(selected.base64);
+      const nextPending = { photoUri: selected.uri, result: nextResult };
+      await savePendingScan(nextPending);
+      setPending(nextPending); setResult(nextResult); setManual(false);
+      if (!nextResult.medicine_name) speak("No readable medicine name found. Please use a clear packaging or prescription photo.");
+    } catch (reason) {
+      setUploadError(reason instanceof Error ? reason.message : "Could not read this photo. Please choose another image.");
+    } finally { setUploading(false); }
+  };
+
+  const beginPhotoUpload = async () => {
+    if (Platform.OS === "web") return uploadReplacement();
+    const current = await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (current.granted) return uploadReplacement();
+    setPhotoBlocked(!current.canAskAgain); setPhotoPermissionSheet(true);
+  };
+
+  const requestPhotoPermission = async () => {
+    const response = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (response.granted) return uploadReplacement();
+    setPhotoBlocked(!response.canAskAgain);
+  };
+
   if (!pending || !result) return <SafeAreaView style={styles.loading}><Text style={styles.loadingText}>Preparing your medicine details...</Text></SafeAreaView>;
   const unreadable = !result.medicine_name && !manual;
   return (
@@ -86,8 +123,10 @@ export default function ConfirmScreen() {
           <Image source={{ uri: pending.photoUri }} style={styles.photo} contentFit="cover" />
           {unreadable ? (
             <View testID="unreadable-result-card" style={styles.unreadable}>
-              <RotateCcw size={46} color={colors.warning} /><Text style={styles.unreadableTitle}>Could not read clearly</Text><Text style={styles.unreadableText}>Please retake the photo in better light. Keep the medicine name inside the frame.</Text>
+              <RotateCcw size={46} color={colors.warning} /><Text style={styles.unreadableTitle}>Could not read clearly</Text><Text style={styles.unreadableText}>Use a clear medicine box, bottle, blister strip, prescription, or label with visible printed text. Loose tablets cannot be safely identified by appearance.</Text>
+              {!!uploadError && <Text testID="replacement-upload-error" style={styles.uploadError}>{uploadError}</Text>}
               <BigButton testID="unreadable-retake-button" label="Retake photo" icon={RotateCcw} onPress={() => router.replace("/scan/camera")} />
+              <BigButton testID="unreadable-upload-button" label="Upload packaging photo" icon={Upload} variant="secondary" loading={uploading} onPress={beginPhotoUpload} />
               <Pressable testID="manual-entry-button" onPress={() => setManual(true)} style={styles.manualLink}><Edit3 size={20} color={colors.primary} /><Text style={styles.manualText}>Enter details manually</Text></Pressable>
             </View>
           ) : manual ? (
@@ -108,6 +147,7 @@ export default function ConfirmScreen() {
         {!unreadable && <View style={styles.actions}><BigButton testID="confirm-reminder-button" label="Yes, remind me" icon={Check} loading={saving} disabled={!result.medicine_name} onPress={beginSave} style={styles.actionButton} /><BigButton testID="confirm-retake-button" label="Retake" icon={RotateCcw} variant="secondary" onPress={() => router.replace("/scan/camera")} style={styles.actionButton} /></View>}
       </KeyboardAvoidingView>
       <Modal visible={permissionSheet} transparent animationType="slide" onRequestClose={() => setPermissionSheet(false)}><View style={styles.backdrop}><View style={styles.sheet}><View style={styles.handle} /><Bell size={52} color={colors.primary} /><Text style={styles.sheetTitle}>{blocked ? "Notifications are off" : "Allow medicine reminders?"}</Text><Text style={styles.sheetText}>{blocked ? "Open device settings to turn on the alarms. You can still save without them." : "MedicPal will alert you at each medicine time, even when the app is closed."}</Text>{blocked ? <BigButton testID="open-notification-settings-button" label="Open device settings" icon={Settings} onPress={() => Linking.openSettings()} /> : <BigButton testID="request-notification-permission-button" label="Allow reminders" icon={Bell} onPress={requestNotifications} />}<BigButton testID="save-without-notifications-button" label="Save without alarms" icon={Check} variant="secondary" onPress={() => finishSave(false)} /></View></View></Modal>
+      <Modal visible={photoPermissionSheet} transparent animationType="slide" onRequestClose={() => setPhotoPermissionSheet(false)}><View style={styles.backdrop}><View style={styles.sheet}><View style={styles.handle} /><Upload size={52} color={colors.primary} /><Text style={styles.sheetTitle}>{photoBlocked ? "Photo access is off" : "Choose a medicine photo?"}</Text><Text style={styles.sheetText}>{photoBlocked ? "Open device settings to choose a packaging photo." : "Select a box, bottle, blister strip, prescription, or label with readable printed text."}</Text>{photoBlocked ? <BigButton testID="confirm-open-photo-settings-button" label="Open device settings" icon={Settings} onPress={() => { setPhotoPermissionSheet(false); void Linking.openSettings(); }} /> : <BigButton testID="confirm-request-photo-permission-button" label="Allow photo access" icon={Upload} onPress={requestPhotoPermission} />}<BigButton testID="confirm-cancel-photo-upload-button" label="Not now" icon={ArrowLeft} variant="secondary" onPress={() => setPhotoPermissionSheet(false)} /></View></View></Modal>
     </SafeAreaView>
   );
 }
@@ -118,7 +158,7 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 24, gap: 18 }, photo: { width: "100%", height: 220, borderRadius: radii.lg, backgroundColor: colors.card }, aiBadge: { minHeight: 48, borderRadius: radii.md, backgroundColor: colors.card, flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 14, marginBottom: 12 }, aiText: { color: colors.primary, fontSize: 16, fontWeight: "900" },
   detailsCard: { backgroundColor: colors.white, borderRadius: radii.lg, paddingHorizontal: 18, borderWidth: 1, borderColor: colors.border }, detail: { minHeight: 78, justifyContent: "center", borderBottomWidth: 1, borderBottomColor: colors.border }, detailLabel: { color: colors.textSecondary, fontSize: 14, fontWeight: "700" }, detailValue: { color: colors.text, fontSize: 21, fontWeight: "900", marginTop: 4 }, reminders: { minHeight: 82, backgroundColor: colors.card, borderRadius: radii.lg, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 }, reminderTitle: { color: colors.text, fontSize: 18, fontWeight: "900" }, reminderTimes: { color: colors.primary, fontSize: 17, fontWeight: "800", marginTop: 4 },
   actions: { minHeight: 104, padding: 14, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.white, flexDirection: "row", gap: 10 }, actionButton: { flex: 1, paddingHorizontal: 8 },
-  unreadable: { backgroundColor: colors.white, borderRadius: radii.lg, padding: 22, alignItems: "center", gap: 14, borderWidth: 2, borderColor: colors.warning }, unreadableTitle: { color: colors.text, fontSize: 25, fontWeight: "900" }, unreadableText: { color: colors.textSecondary, fontSize: 18, lineHeight: 26, textAlign: "center" }, manualLink: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16 }, manualText: { color: colors.primary, fontSize: 17, fontWeight: "800" },
+  unreadable: { backgroundColor: colors.white, borderRadius: radii.lg, padding: 22, alignItems: "center", gap: 14, borderWidth: 2, borderColor: colors.warning }, unreadableTitle: { color: colors.text, fontSize: 25, fontWeight: "900" }, unreadableText: { color: colors.textSecondary, fontSize: 18, lineHeight: 26, textAlign: "center" }, uploadError: { color: colors.danger, fontSize: 16, lineHeight: 22, fontWeight: "800", textAlign: "center" }, manualLink: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16 }, manualText: { color: colors.primary, fontSize: 17, fontWeight: "800" },
   manualForm: { backgroundColor: colors.white, borderRadius: radii.lg, padding: 18, gap: 12 }, sectionTitle: { color: colors.text, fontSize: 23, fontWeight: "900", marginBottom: 4 }, inputLabel: { color: colors.text, fontSize: 16, fontWeight: "800", marginBottom: 6 }, input: { minHeight: 60, backgroundColor: colors.background, borderRadius: radii.md, borderWidth: 1.5, borderColor: colors.border, paddingHorizontal: 14, color: colors.text, fontSize: 18 },
   backdrop: { flex: 1, backgroundColor: "rgba(14,43,74,0.45)", justifyContent: "flex-end" }, sheet: { minHeight: "52%", backgroundColor: colors.white, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, alignItems: "center", justifyContent: "center", gap: 15 }, handle: { position: "absolute", top: 12, width: 54, height: 5, borderRadius: 3, backgroundColor: colors.border }, sheetTitle: { color: colors.text, fontSize: 27, fontWeight: "900", textAlign: "center" }, sheetText: { color: colors.textSecondary, fontSize: 18, lineHeight: 26, textAlign: "center", marginBottom: 8 },
 });

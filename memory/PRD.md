@@ -50,6 +50,10 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Added a clearly labeled `Skip login (dev only)` action gated by `__DEV__` for testing non-OAuth app flows in Expo Go.
 - The development profile is local-only and has no Google token, so Calendar synchronization is intentionally unavailable in this **MOCKED** flow.
 
+### 2026-08-06 — Medicine Packaging Photo Upload
+- Added gallery selection for medicine boxes, bottles, blister strips, prescriptions, and labels, with 1024px JPEG preparation before analysis.
+- Added a strict safety boundary: Gemini reads visible printed text only and must not identify loose tablets from appearance.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing
