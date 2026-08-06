@@ -1,4 +1,4 @@
-## MedicPal Tech Stack
+## MediPal Tech Stack
 
 ### Mobile Frontend
 - **Expo SDK 54**
