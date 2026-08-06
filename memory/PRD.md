@@ -42,6 +42,10 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Verified Google account sign-in opens with the Calendar events scope and no redirect URI mismatch.
 - Android and iOS OAuth client IDs remain pending for native sign-in validation.
 
+### 2026-08-06 — Google Android OAuth Configuration
+- Configured the supplied Android OAuth client ID for package `com.emergent.medicpalhealth.k7ztqx`.
+- Local debug SHA-1 is documented for Android development testing; production signing validation remains pending.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing
