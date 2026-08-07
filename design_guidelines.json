@@ -1,76 +1,66 @@
 {
   "theme": "light",
   "typography": {
-    "headings": "Manrope",
-    "body": "IBM Plex Sans",
-    "strategy": "Soft Utility pairing. Clean, readable, and highly accessible for medical contexts. Avoid 'Inter' for headings."
+    "headings": "System Sans-Serif",
+    "body": "System Sans-Serif",
+    "strategy": "Soft Utility pairing. Clean, readable, and highly accessible for medical contexts."
   },
   "colors": {
     "primary": "#38BDF8",
     "primary_foreground": "#FFFFFF",
-    "bot_bubble": "#F1F5F9",
-    "bot_text": "#0F172A",
-    "user_bubble": "#E0F2FE",
-    "user_text": "#0C4A6E",
     "destructive": "#EF4444",
     "destructive_foreground": "#FFFFFF",
     "background": "#FFFFFF",
     "surface": "#F8FAFC",
-    "border": "#E2E8F0"
+    "border": "#E2E8F0",
+    "text_primary": "#0F172A",
+    "text_secondary": "#64748B"
   },
   "visual_enhancers": {
-    "surfaces": "Flat Solid surfaces ONLY. No glassmorphism to prevent visual refraction of clinical data. Crisp 1px solid borders for separation.",
-    "corners": "Soft 12px radius for standard elements. Message bubbles should have asymmetric radii (e.g. bot: rounded-tr-2xl rounded-br-2xl rounded-bl-2xl rounded-tl-sm). Quick replies must be pill-shaped (rounded-full).",
-    "shadows": "Minimal ambient shadows (shadow-sm) for the bottom navigation bar and sticky header. Do not use heavy drop shadows."
+    "surfaces": "Flat Solid surfaces ONLY. Crisp borders for separation.",
+    "corners": "Soft 12px radius for standard elements.",
+    "controls": "Minimum 60dp height for all touchable controls (buttons, inputs) to ensure maximal accessibility."
   },
   "components": [
     {
-      "name": "MobileContainer",
-      "description": "A wrapper limiting width on desktop to simulate a mobile app (max-w-md mx-auto h-[100dvh] flex flex-col bg-white overflow-hidden shadow-2xl relative)."
+      "name": "SettingsDoctorFields",
+      "description": "Text input fields for 'Family/Personal Doctor Name' and 'Doctor Phone Number' located in the Settings screen. Must be at least 60dp high."
     },
     {
-      "name": "BottomNavigation",
-      "description": "Fixed bottom tab bar. Order: Home, Scan, Chat, Settings. Active tab (Chat) highlighted in primary color."
+      "name": "SettingsEmergencyNumber",
+      "description": "Text input field in Settings for editable country emergency number. Defaults to '112'."
     },
     {
-      "name": "ChatArea",
-      "description": "Flex-1 overflow-y-auto container with padding. Messages flow from bottom up. Smooth scrolling."
-    },
-    {
-      "name": "MessageBubble",
-      "description": "Distinct styles for user vs bot. Bot includes a small avatar icon (lucide-react Bot). User aligned right, Bot aligned left."
-    },
-    {
-      "name": "QuickReplies",
-      "description": "Horizontal scrollable list (hide scrollbar) of pill-shaped action buttons pinned right above the bottom tab bar or inline in chat."
-    },
-    {
-      "name": "ConfirmationDrawer",
-      "description": "Shadcn Drawer or Dialog for critical actions ('Stop future reminders'). Solid background, NO transparent overlays. Explicit red destructive button."
+      "name": "CallChoiceHealthSheet",
+      "description": "A bottom sheet popup containing large accessible buttons to choose between calling Caretaker or Doctor. Must handle missing states by providing a 'Set up in Settings' link."
     }
   ],
   "grids_and_layouts": {
-    "strategy": "Mobile-first flexbox layout. Strict hierarchy. Header (sticky top), Chat Area (flex-1 scroll), Input/QuickReplies (sticky bottom), Bottom Nav (fixed bottom)."
+    "strategy": "Mobile-first accessible flexbox layout. Vertical stacks for forms with generous spacing (min 24px between field groups). Forms should be easily scannable."
   },
   "motion": {
-    "strategy": "Micro-interactions. Fade-up for new messages. Slide-up for the quick reply drawer. Respect prefers-reduced-motion. Spring transitions for dialogs."
+    "strategy": "Smooth slide-up transition for the HealthSheet popup. Micro-interactions on touchable elements (opacity reduction on press)."
   },
   "accessibility": {
-    "contrast": "Ensure all text against bot/user bubbles passes WCAG AA (minimum 4.5:1).",
-    "test_ids": "Mandatory data-testid on all interactive elements (e.g., data-testid='chat-tab-button', data-testid='quick-reply-pause', data-testid='confirm-stop-button')."
+    "contrast": "Ensure all text passes WCAG AA (minimum 4.5:1).",
+    "touch_targets": "All buttons and inputs MUST be at least 60dp (height: 60) for motor accessibility.",
+    "test_ids": "Mandatory data-testid on all interactive elements (e.g., testID='settings-doctor-name-input', testID='call-doctor-button')."
   },
   "icons_and_media": {
-    "strategy": "Use lucide-react for all icons. Avoid AI emojis. Use crisp SVG paths.",
-    "required_icons": ["Home", "Scan", "MessageCircle", "Settings", "Bot", "User", "AlertCircle", "Check", "X"]
+    "strategy": "Use lucide-react-native for all icons. Avoid AI emojis.",
+    "required_icons": ["Phone", "User", "AlertCircle", "Settings", "MapPin"]
   },
   "instructions_to_main_agent": [
-    "Build a web-based UI that precisely emulates a React Native mobile application experience using React and Tailwind.",
-    "Add the 'Chat' tab positioned exactly between 'Scan' and 'Settings'.",
-    "Implement a purely deterministic chat state machine in React state (no external AI APIs).",
-    "Support the following flows via predefined quick replies: Pause/resume reminders, dismiss today's reminder, change time, and MedicPal app FAQs.",
-    "Use a Shadcn Dialog or Drawer for the explicit confirmation required to stop Google Calendar events / future reminders.",
-    "Ensure overlays do NOT have fully transparent backgrounds. Use solid or highly opaque colors to maintain text readability.",
-    "Make sure all components are .js compatible as the environment uses standard Javascript, not Typescript."
+    "Modify the Settings screen to include fields for 'Family/Personal Doctor Name' and 'Doctor Phone Number'.",
+    "Modify the Settings screen to include an editable 'Emergency Country Number' field that defaults to '112'.",
+    "Update the existing floating Call button to open a 'HealthSheet' (bottom sheet choice popup) instead of immediately calling.",
+    "In the HealthSheet, show choices for 'Call Caregiver' and 'Call Doctor'.",
+    "If either contact is missing, clearly show the missing contact state in the HealthSheet and provide a link that navigates to the Settings screen.",
+    "Ensure location is ONLY requested when the user taps 'Share my location' (no automatic location requests).",
+    "For the 'Travel SOS' feature mentioned in the problem statement: DO NOT BUILD IT. Simply document it as a planned feature in code comments if necessary.",
+    "Preserve MedicPal's existing accessible light-blue style and ensure all controls are 60dp minimum height.",
+    "All updated or new interactive elements MUST have a testID property.",
+    "Ensure all instructions are applied for .js files as the environment uses JS."
   ],
   "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
     "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends.",
