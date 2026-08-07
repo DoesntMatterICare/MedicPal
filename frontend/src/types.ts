@@ -30,6 +30,9 @@ export interface UserProfile {
   highContrast: boolean;
   ttsEnabled: boolean;
   caregiverPhone: string;
+  doctorName?: string;
+  doctorPhone?: string;
+  emergencyNumber?: string;
 }
 
 export interface ScanResult {

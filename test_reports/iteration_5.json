@@ -1,0 +1,53 @@
+{
+  "summary": "Frontend-only mobile regression executed on public preview URL for caregiver/doctor call-choice changes. Settings inputs rendered with correct testIDs, contact values persisted after blur/navigation, tab navigation worked, and call sheet behavior (open/dismiss/missing-contact states) was validated in focused reruns. Long-run scripts showed intermittent Metro disconnect flakiness.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "End-to-end long mobile script including contact fill + call-sheet assertion",
+        "issue": "Intermittent Metro disconnect (1006) during automation caused flaky failures while waiting for call-sheet selectors in longer runs. Focused rerun confirmed sheet opens from both Home and Settings.",
+        "affected_testIDs": [
+          "settings-contact-call-button",
+          "home-contact-call-button",
+          "contact-call-sheet"
+        ]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/ui_iteration_5_retry/call_sheet_both_contacts.jpg",
+    "/app/test_reports/ui_iteration_5_retry/call_sheet_fit_390x844.jpg",
+    "/app/test_reports/ui_iteration_5_attempt3/settings_after_call_tap.jpg",
+    "/root/.emergent/automation_output/20260807_102130/console_20260807_102130.log",
+    "/root/.emergent/automation_output/20260807_102257/console_20260807_102257.log"
+  ],
+  "action_items": [
+    "Main agent should do one quick manual mobile-web verification for the both-contacts-enabled state in the same session due observed Metro flakiness in long automation runs.",
+    "Keep dev skip-login clearly marked as MOCKED and keep tel: execution validation on real device only (browser cannot complete dialing).",
+    "Optional hardening: investigate periodic Metro websocket disconnects (1006) that can cause false-negative automation failures."
+  ],
+  "critical_code_review_comments": [
+    "Settings includes distinct doctor and caregiver fields with unique testIDs and onBlur profile updates.",
+    "EmergencyButton uses unique testIDs for Home/Settings instances and gates call actions by saved phone availability.",
+    "Travel SOS remains roadmap-only in PRD; no Travel SOS/location permission/background tracking UI was found in tested flows.",
+    "frontend/.env still uses EXPO_PUBLIC_BACKEND_URL key, while project testing contract references EXPO_BACKEND_URL."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_5.json"
+  ],
+  "success_rate": {
+    "backend": "NA",
+    "frontend": "90%"
+  },
+  "seed_data_creation": "Local profile data entered in Settings: caregiver +91 90000 11111, doctor Dr Meera Shah, doctor phone +91 90000 22222.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Use public preview URL and mobile viewport 390x844. If onboarding appears, complete language + dev skip login (MOCKED). If Scan permission sheet appears, dismiss with cancel-camera-permission-button before tab checks. Prefer shorter focused scripts to avoid Metro 1006 false negatives.",
+  "rca_of_issue": "RCA (flaky automation): In longer multi-step scripts, Metro websocket disconnect (1006) interrupts selector waits, producing false failures on contact-call-sheet checks. Reproduction: run extended onboarding+tab+settings+call workflow in one script. Mitigation: keep flows shorter and perform one manual confirmation pass for final both-contacts-enabled state in same session."
+}

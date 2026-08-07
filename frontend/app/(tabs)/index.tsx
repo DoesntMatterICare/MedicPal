@@ -54,7 +54,7 @@ export default function HomeScreen() {
           </View>
         }
       />
-      <EmergencyButton />
+      <EmergencyButton testID="home-contact-call-button" />
     </SafeAreaView>
   );
 }

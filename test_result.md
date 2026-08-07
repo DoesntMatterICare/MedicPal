@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Build the health organizer features, then add a deterministic on-device Chat tab for reminder, Calendar, settings, and app FAQ actions with minimal data use and no medical advice."
+user_problem_statement: "Build the health organizer and deterministic Chat, then add a family/personal doctor contact alongside the caregiver and let the Call button choose either contact. Plan, but do not build, a Travel SOS feature for users who become ill while travelling alone."
 backend:
   - task: "Non-diagnostic symptom insights API"
     implemented: true
@@ -209,16 +209,27 @@ frontend:
       - working: true
         agent: "main"
         comment: "No-token Calendar deletion now queues event-ID-only cleanup locally without a network request; preview verified clear non-blocking user messaging."
+  - task: "Caregiver and personal doctor call choices"
+    implemented: true
+    working: true
+    file: "/app/frontend/components/EmergencyButton.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Verified caregiver and doctor name/phone persist from Settings and appear as separate enabled choices in the Call sheet at 390x844."
 metadata:
   created_by: "main_agent"
-  version: "1.4"
-  test_sequence: 4
+  version: "1.5"
+  test_sequence: 5
   run_ui: true
 test_plan:
   current_focus:
-    - "User verification of deterministic MedicPal helper"
+    - "Caregiver and personal doctor call choices"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
@@ -233,3 +244,5 @@ agent_communication:
     message: "Independent Chat regression passed; reported unauthorized Calendar cleanup in the no-token development profile."
   - agent: "main"
     message: "Fixed no-token cleanup to queue Calendar event IDs locally. Final self-test confirmed no remote call and clear user messaging."
+  - agent: "main"
+    message: "Added doctor name/phone settings and a caregiver-or-doctor Call sheet. Travel SOS remains a documented future plan only."

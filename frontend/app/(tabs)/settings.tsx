@@ -2,7 +2,7 @@ import Slider from "@react-native-community/slider";
 import * as AuthSession from "expo-auth-session";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
-import { Languages, LogOut, Phone, Shield, Type, Volume2, X } from "lucide-react-native";
+import { Languages, LogOut, Phone, Shield, Stethoscope, Type, Volume2, X } from "lucide-react-native";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
@@ -20,6 +20,8 @@ function SettingRow({ icon: Icon, title, description, children }: { icon: typeof
 export default function SettingsScreen() {
   const { profile, fontSize, highContrast, ttsEnabled, updateProfile, clearProfile, speak } = useApp();
   const [phone, setPhone] = useState(profile?.caregiverPhone || "");
+  const [doctorName, setDoctorName] = useState(profile?.doctorName || "");
+  const [doctorPhone, setDoctorPhone] = useState(profile?.doctorPhone || "");
   const [confirmLogout, setConfirmLogout] = useState(false);
   const logout = async () => {
     if (profile?.accessToken) {
@@ -50,11 +52,12 @@ export default function SettingsScreen() {
             <Switch testID="tts-toggle" value={ttsEnabled} onValueChange={(value) => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); void updateProfile({ ttsEnabled: value }); if (value) speak("Spoken help is on"); }} trackColor={{ false: colors.border, true: colors.primary }} thumbColor={colors.white} style={styles.switch} />
           </SettingRow>
           <Pressable testID="change-language-button" onPress={async () => { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/onboarding/language"); }} style={({ pressed }) => [styles.actionRow, { transform: [{ scale: pressed ? 0.98 : 1 }] }]}><Languages size={25} color={colors.primary} /><View style={styles.rowText}><Text style={styles.rowTitle}>Language</Text><Text style={styles.rowDescription}>Choose from 10 Indian languages.</Text></View></Pressable>
-          <View style={styles.phoneCard}><View style={styles.rowTop}><View style={styles.rowIcon}><Phone size={24} color={colors.primary} /></View><View style={styles.rowText}><Text style={styles.rowTitle}>Caregiver phone</Text><Text style={styles.rowDescription}>Used only when you tap the Call button.</Text></View></View><TextInput testID="caregiver-phone-input" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Enter phone number" placeholderTextColor={colors.textSecondary} style={styles.input} onBlur={() => updateProfile({ caregiverPhone: phone.trim() })} /></View>
+          <View style={styles.phoneCard}><View style={styles.rowTop}><View style={styles.rowIcon}><Phone size={24} color={colors.primary} /></View><View style={styles.rowText}><Text style={styles.rowTitle}>Caregiver phone</Text><Text style={styles.rowDescription}>Used only when you choose Call caregiver.</Text></View></View><TextInput testID="caregiver-phone-input" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Enter caregiver phone number" placeholderTextColor={colors.textSecondary} style={styles.input} onBlur={() => updateProfile({ caregiverPhone: phone.trim() })} /></View>
+          <View testID="doctor-contact-settings" style={styles.phoneCard}><View style={styles.rowTop}><View style={styles.rowIcon}><Stethoscope size={24} color={colors.primary} /></View><View style={styles.rowText}><Text style={styles.rowTitle}>Family or personal doctor</Text><Text style={styles.rowDescription}>Shown separately when you tap Call.</Text></View></View><TextInput testID="doctor-name-input" value={doctorName} onChangeText={setDoctorName} placeholder="Doctor name" placeholderTextColor={colors.textSecondary} style={styles.input} onBlur={() => updateProfile({ doctorName: doctorName.trim() })} /><TextInput testID="doctor-phone-input" value={doctorPhone} onChangeText={setDoctorPhone} keyboardType="phone-pad" placeholder="Doctor phone number" placeholderTextColor={colors.textSecondary} style={styles.input} onBlur={() => updateProfile({ doctorName: doctorName.trim(), doctorPhone: doctorPhone.trim() })} /></View>
           <BigButton testID="logout-button" label="Sign out and clear data" icon={LogOut} variant="secondary" onPress={() => { speak("Are you sure you want to sign out and clear all medicine data?"); setConfirmLogout(true); }} />
         </ScrollView>
       </KeyboardAvoidingView>
-      <EmergencyButton />
+      <EmergencyButton testID="settings-contact-call-button" />
       <Modal visible={confirmLogout} transparent animationType="slide" onRequestClose={() => setConfirmLogout(false)}>
         <View style={styles.modalBackdrop}><View style={styles.sheet}>
           <View style={styles.sheetHandle} /><Text style={styles.sheetTitle}>Clear MedicPal data?</Text><Text style={styles.sheetText}>This removes your medicines, reminders, and settings from this phone.</Text>

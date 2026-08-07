@@ -24,6 +24,7 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - SQLite medicine storage, local daily notifications, Calendar event creation/deletion, stored event IDs, and offline operation queue.
 - Dashboard medicine cards, taken status, expiry states, medicine detail controls, spoken confirmations, reminder alarm, snooze, and deletion confirmation sheet.
 - Settings for text size, contrast, TTS, language, caregiver number, and data-clearing sign-out.
+- Settings for caregiver phone plus family/personal doctor name and phone; the shared Call control must ask which saved contact to call.
 - Strict MedicPal palette, minimum 18sp body text, minimum 60dp actions, safe areas, haptics, and no user-mode toggle.
 - Dedicated screens for symptom logging, unified chronology, appointments, and private document storage while preserving the three-tab shell.
 - AI symptom output must remain a neutral summary plus doctor questions, include a non-diagnostic safety notice, and escalate emergency phrases without diagnosing.
@@ -86,6 +87,11 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - Added the user-provided Gemini credential to the FastAPI environment only; it is never bundled into Expo.
 - Verified the medicine label endpoint extracted a test medicine name, dosage, and expiry date successfully through Gemini.
 
+### 2026-08-07 — Family Doctor Contact
+- Added local profile fields for family/personal doctor name and phone alongside the caregiver phone.
+- Changed the shared Call control into a choice sheet with separate caregiver and doctor actions, missing-contact states, and a Settings shortcut.
+- The app opens the device dialler only after the user explicitly selects a saved contact.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing
@@ -104,6 +110,14 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - Add optional app-level encryption for vault images beyond the operating system sandbox.
 - Validate chatbot notification dismissal and Calendar rescheduling on physical iOS and Android devices.
 - Add localized chatbot phrase dictionaries for all supported app languages.
+
+### P1 — Planned Travel SOS (Not Implemented)
+- Add an offline-first “I feel unwell while travelling” screen; do not attempt diagnosis.
+- Provide large actions to call caregiver, personal doctor, or emergency services. Default emergency number: India `112`, editable for another country.
+- Add an offline “Show this to a helper” medical card containing user-approved name, age, blood group, allergies, conditions, current medicines, emergency contacts, and preferred language.
+- Request location only after the user taps “Share my location”; share a one-time map link and short SOS message through the device SMS/share sheet. No background tracking.
+- Add an optional travel check-in: user sets destination and expected arrival; MedicPal prompts them to confirm safety and can alert a chosen caregiver only with prior consent.
+- Keep all profile and medical-card fields editable and explicitly chosen by the user; never infer conditions from symptoms or medicines.
 
 ### P2 — Enhancements
 - Add caregiver-friendly Calendar sharing guidance without adding a separate app mode.
