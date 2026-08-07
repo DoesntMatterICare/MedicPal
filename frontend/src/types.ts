@@ -35,6 +35,21 @@ export interface ScanResult {
   expiry_date: string | null;
   dosage: string | null;
   frequency_hint: string | null;
+  evidence?: EvidenceItem[];
+}
+
+export interface EvidenceBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface EvidenceItem {
+  field: "medicine_name" | "expiry_date" | "dosage" | "frequency_hint";
+  text: string;
+  confidence: number;
+  box: EvidenceBox | null;
 }
 
 export interface PendingScan {

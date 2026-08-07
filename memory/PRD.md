@@ -56,7 +56,12 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 
 ### 2026-08-06 — Gemini Credential Rotation
 - Replaced the server-side Gemini API credential supplied by the user.
-- Updated the configured model to `gemini-3.5-flash` because Google reports Gemini 2.5 Flash as unavailable to new users for this credential; 3.5 Flash was verified available.
+- Updated the configured model to `gemini-3.1-flash-lite` because Google reports Gemini 2.5 Flash as unavailable to new users; the newer low-latency multimodal model supports evidence extraction within the mobile flow.
+
+### 2026-08-06 — Explainability, Caregiver Escalation, and Privacy
+- Added AI evidence snippets, field confidence, normalized text-location boxes, direct photo highlights, and a prominent verification warning.
+- Added a second local alert 30 minutes after each unconfirmed dose; tapping it opens call and prefilled SMS caregiver actions. Confirmed doses suppress escalation display.
+- Added a dedicated Privacy dashboard with local medicine/photo counts, Calendar connection and pending queue status, manual sync, contextual permission controls, photo-processing disclosure, and full local-data deletion.
 
 ## Prioritized Backlog
 

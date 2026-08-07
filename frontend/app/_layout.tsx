@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { LogBox } from "react-native";
+import { LogBox, Platform } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
@@ -21,10 +21,15 @@ function AppStack() {
   }, [profile?.accessToken]);
 
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    const openReminder = (response: Notifications.NotificationResponse) => {
       const id = response.notification.request.content.data?.medicineId;
-      if (typeof id === "string") router.push(`/reminder/${id}`);
-    });
+      const missed = response.notification.request.content.data?.missedDose;
+      if (typeof id === "string") router.push({ pathname: "/reminder/[id]", params: { id, missed: missed ? "1" : "0" } });
+    };
+    const subscription = Notifications.addNotificationResponseReceivedListener(openReminder);
+    if (Platform.OS !== "web") {
+      void Notifications.getLastNotificationResponseAsync().then((response) => { if (response) openReminder(response); });
+    }
     return () => subscription.remove();
   }, [router]);
 

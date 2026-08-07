@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -29,11 +29,26 @@ class MedicineScanRequest(BaseModel):
     mime_type: str = Field(default="image/jpeg", pattern=r"^image/(jpeg|png)$")
 
 
+class EvidenceBox(BaseModel):
+    x: int = Field(ge=0, le=1000)
+    y: int = Field(ge=0, le=1000)
+    width: int = Field(ge=0, le=1000)
+    height: int = Field(ge=0, le=1000)
+
+
+class EvidenceItem(BaseModel):
+    field: Literal["medicine_name", "expiry_date", "dosage", "frequency_hint"]
+    text: str
+    confidence: float = Field(ge=0, le=1)
+    box: Optional[EvidenceBox] = None
+
+
 class MedicineScanResult(BaseModel):
     medicine_name: Optional[str] = None
     expiry_date: Optional[str] = None
     dosage: Optional[str] = None
     frequency_hint: Optional[str] = None
+    evidence: list[EvidenceItem] = Field(default_factory=list)
 
 
 SCAN_PROMPT = """
@@ -45,6 +60,12 @@ Extract exactly what is visible; never infer, autocomplete, or guess.
 - expiry_date: DD/MM/YYYY, MM/YYYY, or YYYY, or null when absent/unclear
 - dosage: visible amount such as '1 tablet' or '5 ml syrup', or null
 - frequency_hint: visible directions about when/how often to take it, or null
+Also return an evidence array for every non-null field:
+- field: the matching field name
+- text: the exact visible printed words supporting the value
+- confidence: 0 to 1 for text-reading clarity only, not medical certainty
+- box: a tight location using x, y, width, height normalized from 0 to 1000;
+  use null only when the text is readable but its location cannot be determined
 If any field is uncertain, return null for that field. Patient safety is more
 important than completeness. Never identify loose pills or tablets from shape,
 color, markings, or appearance alone. If no medicine name is clearly readable
@@ -81,8 +102,31 @@ def _analyze_with_gemini(payload: MedicineScanRequest) -> MedicineScanResult:
                     "expiry_date": {"type": "STRING", "nullable": True},
                     "dosage": {"type": "STRING", "nullable": True},
                     "frequency_hint": {"type": "STRING", "nullable": True},
+                    "evidence": {
+                        "type": "ARRAY",
+                        "items": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "field": {"type": "STRING", "enum": ["medicine_name", "expiry_date", "dosage", "frequency_hint"]},
+                                "text": {"type": "STRING"},
+                                "confidence": {"type": "NUMBER", "minimum": 0, "maximum": 1},
+                                "box": {
+                                    "type": "OBJECT",
+                                    "nullable": True,
+                                    "properties": {
+                                        "x": {"type": "INTEGER", "minimum": 0, "maximum": 1000},
+                                        "y": {"type": "INTEGER", "minimum": 0, "maximum": 1000},
+                                        "width": {"type": "INTEGER", "minimum": 0, "maximum": 1000},
+                                        "height": {"type": "INTEGER", "minimum": 0, "maximum": 1000},
+                                    },
+                                    "required": ["x", "y", "width", "height"],
+                                },
+                            },
+                            "required": ["field", "text", "confidence", "box"],
+                        },
+                    },
                 },
-                "required": ["medicine_name", "expiry_date", "dosage", "frequency_hint"],
+                "required": ["medicine_name", "expiry_date", "dosage", "frequency_hint", "evidence"],
             },
         },
     }

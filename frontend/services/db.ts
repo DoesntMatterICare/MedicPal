@@ -74,6 +74,20 @@ export async function removeCalendarQueueItem(id: number) {
   await (await db()).runAsync("DELETE FROM calendar_queue WHERE id = ?", id);
 }
 
+export async function clearLocalAppData() {
+  if (Platform.OS === "web") {
+    const keys = await AsyncStorage.getAllKeys();
+    const appKeys = keys.filter((key) => key.startsWith("medicpal:"));
+    if (appKeys.length) await AsyncStorage.multiRemove(appKeys);
+    return;
+  }
+  const database = await db();
+  await database.execAsync("DELETE FROM medicines; DELETE FROM calendar_queue;");
+  const keys = await AsyncStorage.getAllKeys();
+  const appKeys = keys.filter((key) => key.startsWith("medicpal:"));
+  if (appKeys.length) await AsyncStorage.multiRemove(appKeys);
+}
+
 export const savePendingScan = (scan: PendingScan) => AsyncStorage.setItem(PENDING_SCAN, JSON.stringify(scan));
 export async function getPendingScan(): Promise<PendingScan | null> {
   const data = await AsyncStorage.getItem(PENDING_SCAN);

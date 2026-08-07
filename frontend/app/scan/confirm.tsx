@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BigButton } from "@/components/BigButton";
+import { ExplainableEvidence } from "@/components/ExplainableEvidence";
 import { Speakable } from "@/components/Speakable";
 import { createCalendarEvents } from "@/services/calendar";
 import { clearPendingScan, getPendingScan, saveMedicine } from "@/services/db";
@@ -120,7 +121,7 @@ export default function ConfirmScreen() {
       <View style={styles.header}><Pressable testID="confirm-back-button" onPress={() => router.replace("/scan/camera")} style={styles.back}><ArrowLeft size={23} color={colors.text} /><Text style={styles.backText}>Back</Text></Pressable><Text style={styles.headerTitle}>Check details</Text><View style={styles.headerSpace} /></View>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <Image source={{ uri: pending.photoUri }} style={styles.photo} contentFit="cover" />
+          {unreadable && <Image source={{ uri: pending.photoUri }} style={styles.photo} contentFit="contain" />}
           {unreadable ? (
             <View testID="unreadable-result-card" style={styles.unreadable}>
               <RotateCcw size={46} color={colors.warning} /><Text style={styles.unreadableTitle}>Could not read clearly</Text><Text style={styles.unreadableText}>Use a clear medicine box, bottle, blister strip, prescription, or label with visible printed text. Loose tablets cannot be safely identified by appearance.</Text>
@@ -137,6 +138,7 @@ export default function ConfirmScreen() {
           ) : (
             <View>
               <View style={styles.aiBadge}><Check size={20} color={colors.primary} /><Text style={styles.aiText}>AI extracted — please confirm</Text></View>
+              <ExplainableEvidence photoUri={pending.photoUri} evidence={result.evidence || []} />
               <Speakable text={`${result.medicine_name}. ${result.dosage || "Dosage not listed"}. Reminders ${times.map(displayTime).join(" and ")}`} testID="confirm-details-speak-button">
                 <View style={styles.detailsCard}><Detail label="Medicine name" value={result.medicine_name || "Not readable"} /><Detail label="Expiry date" value={result.expiry_date || "Not listed"} /><Detail label="Dosage" value={result.dosage || "Not listed"} /><Detail label="Frequency" value={result.frequency_hint || "Once daily"} /></View>
               </Speakable>

@@ -2,7 +2,7 @@ import Slider from "@react-native-community/slider";
 import * as AuthSession from "expo-auth-session";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
-import { Languages, LogOut, Phone, Shield, Type, Volume2, X } from "lucide-react-native";
+import { Languages, LockKeyhole, LogOut, Phone, Shield, Type, Volume2, X } from "lucide-react-native";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
@@ -50,6 +50,7 @@ export default function SettingsScreen() {
             <Switch testID="tts-toggle" value={ttsEnabled} onValueChange={(value) => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); void updateProfile({ ttsEnabled: value }); if (value) speak("Spoken help is on"); }} trackColor={{ false: colors.border, true: colors.primary }} thumbColor={colors.white} style={styles.switch} />
           </SettingRow>
           <Pressable testID="change-language-button" onPress={async () => { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/onboarding/language"); }} style={({ pressed }) => [styles.actionRow, { transform: [{ scale: pressed ? 0.98 : 1 }] }]}><Languages size={25} color={colors.primary} /><View style={styles.rowText}><Text style={styles.rowTitle}>Language</Text><Text style={styles.rowDescription}>Choose from 10 Indian languages.</Text></View></Pressable>
+          <Pressable testID="open-privacy-dashboard-button" onPress={async () => { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/privacy"); }} style={({ pressed }) => [styles.actionRow, { transform: [{ scale: pressed ? 0.98 : 1 }] }]}><LockKeyhole size={25} color={colors.primary} /><View style={styles.rowText}><Text style={styles.rowTitle}>Privacy dashboard</Text><Text style={styles.rowDescription}>See local records, photo handling, sync, and permissions.</Text></View></Pressable>
           <View style={styles.phoneCard}><View style={styles.rowTop}><View style={styles.rowIcon}><Phone size={24} color={colors.primary} /></View><View style={styles.rowText}><Text style={styles.rowTitle}>Caregiver phone</Text><Text style={styles.rowDescription}>Used only when you tap the Call button.</Text></View></View><TextInput testID="caregiver-phone-input" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Enter phone number" placeholderTextColor={colors.textSecondary} style={styles.input} onBlur={() => updateProfile({ caregiverPhone: phone.trim() })} /></View>
           <BigButton testID="logout-button" label="Sign out and clear data" icon={LogOut} variant="secondary" onPress={() => { speak("Are you sure you want to sign out and clear all medicine data?"); setConfirmLogout(true); }} />
         </ScrollView>
