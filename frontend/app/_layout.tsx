@@ -24,7 +24,8 @@ function AppStack() {
     const openReminder = (response: Notifications.NotificationResponse) => {
       const id = response.notification.request.content.data?.medicineId;
       const missed = response.notification.request.content.data?.missedDose;
-      if (typeof id === "string") router.push({ pathname: "/reminder/[id]", params: { id, missed: missed ? "1" : "0" } });
+      const scheduleTime = response.notification.request.content.data?.scheduleTime;
+      if (typeof id === "string") router.push({ pathname: "/reminder/[id]", params: { id, missed: missed ? "1" : "0", scheduleTime: typeof scheduleTime === "string" ? scheduleTime : "" } });
     };
     const subscription = Notifications.addNotificationResponseReceivedListener(openReminder);
     if (Platform.OS !== "web") {

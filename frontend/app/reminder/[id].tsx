@@ -12,7 +12,7 @@ import { colors, radii } from "@/src/theme";
 import type { Medicine } from "@/src/types";
 
 export default function ReminderScreen() {
-  const { id, missed } = useLocalSearchParams<{ id: string; missed?: string }>();
+  const { id, missed, scheduleTime } = useLocalSearchParams<{ id: string; missed?: string; scheduleTime?: string }>();
   const { speak, profile } = useApp();
   const [medicine, setMedicine] = useState<Medicine | null>(null);
   const [time, setTime] = useState("");
@@ -25,7 +25,7 @@ export default function ReminderScreen() {
 
   const taken = async () => {
     if (!medicine) return;
-    const next = { ...medicine, schedule: medicine.schedule.map((item) => ({ ...item, taken: true })) };
+    const next = { ...medicine, schedule: medicine.schedule.map((item, index) => ({ ...item, taken: scheduleTime ? item.time === scheduleTime || item.taken : index === 0 ? true : item.taken })) };
     await saveMedicine(next); speak(`${medicine.name} marked as taken. Well done.`); router.replace("/(tabs)");
   };
   const snooze = async () => { if (!medicine) return; await snoozeMedicine(medicine); speak("Reminder snoozed for 10 minutes"); router.replace("/(tabs)"); };

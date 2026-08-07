@@ -76,6 +76,8 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Add explicit Calendar reauthorization UX when an access token expires or Calendar permission is revoked.
 - Add device-level SQLite migration and notification rescheduling tests.
 - Validate denied and permanently blocked photo-library permission recovery on Android and iOS devices.
+- Validate missed-dose notification tap and cold-start routing on Android and iOS devices.
+- Validate Privacy “Sync now” with a real Google account and pending Calendar operations.
 
 ### P2 — Enhancements
 - Add caregiver-friendly Calendar sharing guidance without adding a separate app mode.

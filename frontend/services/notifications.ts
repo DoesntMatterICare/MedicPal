@@ -8,7 +8,8 @@ Notifications.setNotificationHandler({
     const data = notification.request.content.data;
     if (data?.missedDose && typeof data.medicineId === "string") {
       const medicine = await getMedicine(data.medicineId);
-      if (medicine?.schedule.some((item) => item.taken)) {
+      const scheduledTime = typeof data.scheduleTime === "string" ? data.scheduleTime : "";
+      if (medicine?.schedule.some((item) => item.time === scheduledTime && item.taken)) {
         return { shouldShowBanner: false, shouldShowList: false, shouldPlaySound: false, shouldSetBadge: false };
       }
     }
@@ -25,7 +26,7 @@ export async function scheduleMedicineNotifications(medicine: Medicine): Promise
       content: {
         title: `Time for ${medicine.name}`,
         body: medicine.dosage || "Take your scheduled medicine",
-        data: { medicineId: medicine.id },
+        data: { medicineId: medicine.id, scheduleTime: item.time },
         sound: true,
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute },
@@ -38,7 +39,7 @@ export async function scheduleMedicineNotifications(medicine: Medicine): Promise
       content: {
         title: `${medicine.name} is still unconfirmed`,
         body: "Tap to mark it taken or contact your caregiver.",
-        data: { medicineId: medicine.id, missedDose: true },
+        data: { medicineId: medicine.id, missedDose: true, scheduleTime: item.time },
         sound: true,
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: escalationHour, minute: escalationMinute },
