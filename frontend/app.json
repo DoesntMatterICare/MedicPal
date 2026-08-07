@@ -23,7 +23,11 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.emergent.medicpalhealth.k7ztqx",
-      "permissions": ["CAMERA", "POST_NOTIFICATIONS", "READ_MEDIA_IMAGES"]
+      "permissions": [
+        "CAMERA",
+        "POST_NOTIFICATIONS",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro",
