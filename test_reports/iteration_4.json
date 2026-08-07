@@ -1,0 +1,52 @@
+{
+  "summary": "Frontend-only mobile regression completed on public preview URL for the deterministic local Chat tab. Core chat intent matching, confirmations, reminder state mutations, and tab layout/order checks passed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Pause/Resume/Stop with Calendar cleanup in dev-skip profile",
+        "issue": "Google Calendar event delete calls returned 401 in the development skip-login profile. Reminder state persistence still completed locally because errors are caught.",
+        "affected_testIDs": [
+          "chat-quick-reply-pause",
+          "chat-quick-reply-resume",
+          "chat-quick-reply-stop"
+        ]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/ui_iteration_4/chat_tab_layout.jpg",
+    "/app/test_reports/ui_iteration_4/chat_flow_end_state_2.jpg",
+    "/app/test_reports/ui_iteration_4/navigation_check.jpg",
+    "/root/.emergent/automation_output/20260807_090051/console_20260807_090051.log",
+    "/root/.emergent/automation_output/20260807_090133/console_20260807_090133.log",
+    "/root/.emergent/automation_output/20260807_090227/console_20260807_090227.log"
+  ],
+  "action_items": [
+    "Keep Calendar behavior explicitly marked as unavailable in dev skip-login flow (**MOCKED**) and avoid user-facing confusion when remote Calendar calls 401.",
+    "Align frontend environment contract with project rule: use EXPO_BACKEND_URL/extra.EXPO_BACKEND_URL consistently (current .env uses EXPO_PUBLIC_BACKEND_URL)."
+  ],
+  "critical_code_review_comments": [
+    "Chat remains deterministic and local: unknown input fallback and FAQ/app-setting intents are resolved without LLM/backend calls.",
+    "Reminder safety confirmations include prescription/medical-care caution language before destructive actions.",
+    "frontend/.env currently defines EXPO_PUBLIC_BACKEND_URL, which diverges from the declared EXPO_BACKEND_URL contract in testing instructions."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_4.json"
+  ],
+  "success_rate": {
+    "backend": "NA",
+    "frontend": "95%"
+  },
+  "seed_data_creation": "Seeded local web medicines in browser storage key medicpal:web:medicines for deterministic chat action validation.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Onboarding may appear (language + login). Use language-option-en -> language-continue-button -> dev-skip-login-button before tab checks. For Scan tab navigation checks, dismiss camera permission modal via cancel-camera-permission-button.",
+  "rca_of_issue": "RCA: 401 errors originate from Google Calendar API calls when using development skip-login profile (no valid Calendar token), consistent with documented **MOCKED** auth constraints. Mitigation: keep Calendar operations best-effort in this profile and surface a clear non-blocking message if needed."
+}

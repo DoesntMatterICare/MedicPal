@@ -37,3 +37,11 @@ export async function snoozeMedicine(medicine: Medicine) {
     trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 600 },
   });
 }
+
+export async function dismissPresentedMedicineNotifications(medicineId: string): Promise<number> {
+  if (Platform.OS === "web") return 0;
+  const presented = await Notifications.getPresentedNotificationsAsync();
+  const matching = presented.filter((item) => item.request.content.data?.medicineId === medicineId);
+  await Promise.all(matching.map((item) => Notifications.dismissNotificationAsync(item.request.identifier)));
+  return matching.length;
+}

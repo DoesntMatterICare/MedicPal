@@ -56,7 +56,7 @@ export default function ConfirmScreen() {
       expiryDate: normalizeExpiry(result.expiry_date), dosage: result.dosage || "Dosage not listed",
       frequency: result.frequency_hint || "Once daily",
       schedule: times.map((time) => ({ time, taken: false, enabled: true })),
-      googleEventIds: [], notificationIds: [], createdAt: new Date().toISOString(),
+      googleEventIds: [], notificationIds: [], createdAt: new Date().toISOString(), reminderState: "active" as const,
     };
     try {
       await saveMedicine(medicine);

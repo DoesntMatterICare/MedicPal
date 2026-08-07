@@ -12,12 +12,13 @@ import { ExpiryBadge } from "./ExpiryBadge";
 export function MedicineCard({ medicine, onOpen, onToggle }: { medicine: Medicine; onOpen: () => void; onToggle: () => void }) {
   const { fontSize, speak } = useApp();
   const first = medicine.schedule[0];
+  const reminderLabel = medicine.reminderState === "stopped" ? "Reminders stopped" : medicine.reminderState === "paused" ? "Paused" : displayTime(first?.time || "09:00");
   return (
     <Pressable testID={`medicine-card-${medicine.id}`} onPress={async () => { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); speak(medicine.name); onOpen(); }} style={({ pressed }) => [styles.card, { transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
       {medicine.photoUri ? <Image source={{ uri: medicine.photoUri }} style={styles.photo} contentFit="cover" /> : <View style={[styles.photo, styles.placeholder]}><Pill size={40} color={colors.primary} /></View>}
       <View style={styles.info}>
         <Text numberOfLines={2} style={[styles.name, { fontSize: Math.max(22, fontSize + 2) }]}>{medicine.name}</Text>
-        <View style={styles.time}><Text style={styles.timeText}>{displayTime(first?.time || "09:00")}</Text></View>
+        <View testID={`medicine-reminder-status-${medicine.id}`} style={[styles.time, medicine.reminderState !== "active" && medicine.reminderState && styles.timeInactive]}><Text style={[styles.timeText, medicine.reminderState !== "active" && medicine.reminderState && styles.timeTextInactive]}>{reminderLabel}</Text></View>
         <ExpiryBadge date={medicine.expiryDate} />
       </View>
       <View style={styles.toggleWrap}>
@@ -41,8 +42,9 @@ const styles = StyleSheet.create({
   placeholder: { backgroundColor: colors.card, alignItems: "center", justifyContent: "center" },
   info: { flex: 1, alignItems: "flex-start", gap: 7 },
   name: { color: colors.text, fontWeight: "900", lineHeight: 27 },
-  time: { backgroundColor: colors.primary, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  time: { backgroundColor: colors.primary, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 }, timeInactive: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border },
   timeText: { color: colors.white, fontSize: 14, fontWeight: "800" },
+  timeTextInactive: { color: colors.textSecondary },
   toggleWrap: { width: 70, alignItems: "center", justifyContent: "center" },
   switch: { transform: [{ scaleX: 1.25 }, { scaleY: 1.25 }] },
   takenRow: { marginTop: 10, flexDirection: "row", alignItems: "center", gap: 3 },

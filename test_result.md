@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Build Smart Symptom Logging with AI Insights, a Unified Health Timeline, and a Secure Document & Prescription Vault. AI output must be non-diagnostic; documents stay local as base64."
+user_problem_statement: "Build the health organizer features, then add a deterministic on-device Chat tab for reminder, Calendar, settings, and app FAQ actions with minimal data use and no medical advice."
 backend:
   - task: "Non-diagnostic symptom insights API"
     implemented: true
@@ -178,16 +178,39 @@ frontend:
       - working: true
         agent: "main"
         comment: "Final regression saved a base64 document, signed out, and verified symptom, appointment, and vault records were cleared."
+  - task: "Deterministic local MedicPal chatbot"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/chat.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Verified typed FAQ intent, app setting change, pause, resume, change time, dismiss visible alert, and stop-future-reminders flows in the 390x844 preview."
+  - task: "Chat reminder and Calendar action safety"
+    implemented: true
+    working: true
+    file: "/app/frontend/services/reminderActions.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "All schedule changes require medicine selection; pause/resume/change/stop require explicit confirmation and state that reminders do not alter prescriptions."
 metadata:
   created_by: "main_agent"
-  version: "1.2"
-  test_sequence: 3
+  version: "1.3"
+  test_sequence: 4
   run_ui: true
 test_plan:
   current_focus:
-    - "User verification of completed health organizer features"
+    - "Deterministic local MedicPal chatbot"
+    - "Chat reminder and Calendar action safety"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
@@ -196,3 +219,5 @@ agent_communication:
     message: "Backend passed; frontend sheet controls were outside the web viewport."
   - agent: "main"
     message: "Implemented a web-only body portal while preserving native Modal behavior. Final browser checks passed symptom, appointment, vault, and clear-data flows."
+  - agent: "main"
+    message: "Added the fourth Chat tab with local intent matching, app FAQs, app setting controls, medicine selection, safe confirmations, and verified reminder state persistence."

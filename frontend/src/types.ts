@@ -15,6 +15,8 @@ export interface Medicine {
   googleEventIds: string[];
   notificationIds: string[];
   createdAt: string;
+  reminderState?: "active" | "paused" | "stopped";
+  pausedScheduleEnabled?: boolean[];
 }
 
 export interface UserProfile {

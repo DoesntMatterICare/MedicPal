@@ -26,7 +26,8 @@ export default function MedicineDetailScreen() {
   const toggleSchedule = async (index: number) => {
     if (!medicine) return;
     await cancelMedicineNotifications(medicine.notificationIds);
-    const next = { ...medicine, schedule: medicine.schedule.map((item, itemIndex) => itemIndex === index ? { ...item, enabled: !item.enabled } : item), notificationIds: [] };
+    const schedule = medicine.schedule.map((item, itemIndex) => itemIndex === index ? { ...item, enabled: !item.enabled } : item);
+    const next = { ...medicine, schedule, reminderState: schedule.some((item) => item.enabled) ? "active" as const : "paused" as const, pausedScheduleEnabled: undefined, notificationIds: [] };
     const notificationIds = await scheduleMedicineNotifications(next);
     const saved = { ...next, notificationIds };
     await saveMedicine(saved); setMedicine(saved);
