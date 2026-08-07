@@ -1,13 +1,13 @@
 # MedicPal Product Requirements Document
 
 ## Problem Statement
-MedicPal is a mobile health mediator that helps people photograph medicine labels, safely extract visible label details, and create reliable local and Google Calendar reminders. It is not a doctor replacement. One universally clear interface must serve busy professionals, older adults, colorblind users, and users who benefit from spoken assistance—without separate modes.
+MedicPal is a local-first mobile health organizer. It helps people photograph medicine labels, create reminders, record symptoms, prepare non-diagnostic notes for clinicians, review a unified health timeline, and privately keep document photos. It is not a doctor replacement. One universally clear interface must serve busy professionals, older adults, colorblind users, and users who benefit from spoken assistance—without separate modes.
 
 ## Architecture
 - **Mobile:** Expo SDK 54, React Native, TypeScript, Expo Router, safe-area-aware three-tab navigation.
-- **Local source of truth:** Expo SQLite on iOS/Android; AsyncStorage fallback for web preview. Medicines, schedules, Calendar IDs, notification IDs, and offline Calendar operations are persisted locally.
-- **Backend:** FastAPI scan proxy. The Gemini key remains server-side, images are validated, and Gemini returns strict nullable JSON.
-- **Integrations:** Gemini 2.5 Flash label extraction, custom Google OAuth with Calendar scope, Google Calendar REST API, Expo Notifications, Expo Camera, Image Manipulator, Speech, Haptics, and Google user profile access.
+- **Local source of truth:** Expo SQLite on iOS/Android; AsyncStorage fallback for web preview. Medicines, symptom logs, appointments, base64 document photos, schedules, Calendar IDs, notification IDs, and offline Calendar operations are persisted locally.
+- **Backend:** FastAPI AI proxy. Universal Key credentials remain server-side; medicine images and symptom requests are validated and return strict Pydantic response shapes.
+- **Integrations:** GPT-5.4 medicine text extraction and symptom visit prep through Emergent Universal Key, custom Google OAuth with Calendar scope, Google Calendar REST API, Expo Notifications, Expo Camera, Image Picker/Manipulator, Speech, Haptics, and Google user profile access.
 - **Offline behavior:** Medicine viewing/editing and local storage work offline. Calendar operations queue when offline. Gemini requires connectivity.
 
 ## User Personas
@@ -25,6 +25,9 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Dashboard medicine cards, taken status, expiry states, medicine detail controls, spoken confirmations, reminder alarm, snooze, and deletion confirmation sheet.
 - Settings for text size, contrast, TTS, language, caregiver number, and data-clearing sign-out.
 - Strict MedicPal palette, minimum 18sp body text, minimum 60dp actions, safe areas, haptics, and no user-mode toggle.
+- Dedicated screens for symptom logging, unified chronology, appointments, and private document storage while preserving the three-tab shell.
+- AI symptom output must remain a neutral summary plus doctor questions, include a non-diagnostic safety notice, and escalate emergency phrases without diagnosing.
+- Vault images must be compressed to base64 and stored only in the app's local device data.
 
 ## Implemented
 
@@ -54,6 +57,17 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Added gallery selection for medicine boxes, bottles, blister strips, prescriptions, and labels, with 1024px JPEG preparation before analysis.
 - Added a strict safety boundary: Gemini reads visible printed text only and must not identify loose tablets from appearance.
 
+### 2026-08-07 — Health Organizer Expansion
+- Added local symptom logs with severity, duration, notes, timestamps, deletion, and GPT-5.4 visit-prep insights that never diagnose or recommend treatment.
+- Added rule-based urgent escalation for emergency phrases and a fixed safety notice on every AI insight.
+- Added a unified chronological timeline combining medicines, symptoms, appointments, and vault documents.
+- Added appointment creation and local persistence.
+- Added a private document and prescription vault with image compression, base64-only storage, categories, previews, and deletion.
+- Added Home entry cards for all three features while preserving Home, Scan, and Settings tabs.
+- Restored forked environment configuration and moved medicine scanning to the protected Universal Key fallback when the original Gemini key is unavailable.
+- Fixed React Native Web sheets with a body portal while preserving native Modal/KeyboardAvoidingView behavior.
+- Verified API safety, symptom insights, medicine scanning, appointment timeline, vault persistence, responsive mobile layout, and sign-out data clearing.
+
 ## Prioritized Backlog
 
 ### P0 — Required Before Google Sign-In Testing
@@ -67,14 +81,19 @@ MedicPal is a mobile health mediator that helps people photograph medicine label
 - Add explicit Calendar reauthorization UX when an access token expires or Calendar permission is revoked.
 - Add device-level SQLite migration and notification rescheduling tests.
 - Validate denied and permanently blocked photo-library permission recovery on Android and iOS devices.
+- Add native date/time pickers for appointments and editable event dates.
+- Add explicit confirmation sheets before deleting symptom logs or vault records.
+- Add optional app-level encryption for vault images beyond the operating system sandbox.
 
 ### P2 — Enhancements
 - Add caregiver-friendly Calendar sharing guidance without adding a separate app mode.
 - Add adherence history and a simple weekly taken/missed summary.
 - Add optional voice capture guidance and label-edge quality checks before upload.
+- Add timeline filters and clinician-friendly local export initiated explicitly by the user.
+- Add PDF import and multi-page document support without remote storage.
 
 ## Next Tasks
-1. Receive and configure Google OAuth client IDs.
-2. Complete real-device sign-in and Calendar integration validation.
+1. User review of symptom, timeline, and vault workflows on a physical device.
+2. Complete real-device Google sign-in and Calendar integration validation.
 3. Run accessibility checks with large system text and VoiceOver/TalkBack.
 4. Expand complete UI translation coverage for all 10 languages.

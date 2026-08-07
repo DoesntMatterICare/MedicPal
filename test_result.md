@@ -110,22 +110,28 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Verified POST /api/symptom-insights returns structured summary, 2-4 doctor questions, and safety notice using GPT-5.4."
+      - working: true
+        agent: "testing"
+        comment: "Independent regression verified strict safety response and urgent-warning behavior."
   - task: "Medicine scanner fallback after fork environment loss"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Verified a generated medicine label JPEG returns strict extraction JSON through the protected Universal Key fallback."
+      - working: true
+        agent: "testing"
+        comment: "Independent backend regression passed the medicine scanner fallback and invalid-input tests."
 frontend:
   - task: "Smart symptom logging and AI visit prep"
     implemented: true
@@ -133,48 +139,60 @@ frontend:
     file: "/app/frontend/app/symptoms/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Browser walkthrough saved a symptom locally and rendered the returned AI insight."
+      - working: false
+        agent: "testing"
+        comment: "Independent web run found HealthSheet actions outside the phone viewport."
+      - working: true
+        agent: "main"
+        comment: "Fixed web sheets with a document-body portal; verified save button at y=677 within 844px viewport and completed symptom submission."
   - task: "Unified health timeline"
     implemented: true
     working: true
     file: "/app/frontend/app/timeline/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Browser walkthrough displayed symptom and appointment events in chronological order."
+      - working: true
+        agent: "main"
+        comment: "After portal fix, verified appointment save at y=619 and confirmed merged chronology."
   - task: "Local base64 document vault"
     implemented: true
     working: true
     file: "/app/frontend/app/vault/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Browser walkthrough selected an image, stored base64 locally, and rendered the saved vault card."
+      - working: true
+        agent: "main"
+        comment: "Final regression saved a base64 document, signed out, and verified symptom, appointment, and vault records were cleared."
 metadata:
   created_by: "main_agent"
-  version: "1.1"
-  test_sequence: 1
+  version: "1.2"
+  test_sequence: 3
   run_ui: true
 test_plan:
   current_focus:
-    - "Non-diagnostic symptom insights API"
-    - "Smart symptom logging and AI visit prep"
-    - "Unified health timeline"
-    - "Local base64 document vault"
-    - "Medicine scanner fallback after fork environment loss"
+    - "User verification of completed health organizer features"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
     message: "Implementation, lint, TypeScript, backend curl, and browser walkthrough are complete. Please run final regression testing, including local persistence and AI safety language."
+  - agent: "testing"
+    message: "Backend passed; frontend sheet controls were outside the web viewport."
+  - agent: "main"
+    message: "Implemented a web-only body portal while preserving native Modal behavior. Final browser checks passed symptom, appointment, vault, and clear-data flows."
