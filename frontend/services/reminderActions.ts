@@ -1,11 +1,12 @@
 import { createCalendarEvents, deleteCalendarEvents } from "@/services/calendar";
-import { saveMedicine } from "@/services/db";
+import { queueCalendarOperation, saveMedicine } from "@/services/db";
 import { cancelMedicineNotifications, dismissPresentedMedicineNotifications, scheduleMedicineNotifications } from "@/services/notifications";
 import type { Medicine } from "@/src/types";
 
 async function clearRemoteAndLocal(medicine: Medicine, token: string) {
   await cancelMedicineNotifications(medicine.notificationIds).catch(() => undefined);
-  if (medicine.googleEventIds.length) await deleteCalendarEvents(medicine.googleEventIds, token).catch(() => undefined);
+  if (medicine.googleEventIds.length && token) await deleteCalendarEvents(medicine.googleEventIds, token).catch(() => undefined);
+  if (medicine.googleEventIds.length && !token) await Promise.all(medicine.googleEventIds.map((eventId) => queueCalendarOperation("delete", { eventId })));
 }
 
 async function activate(medicine: Medicine, token: string): Promise<Medicine> {

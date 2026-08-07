@@ -184,33 +184,41 @@ frontend:
     file: "/app/frontend/app/(tabs)/chat.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Verified typed FAQ intent, app setting change, pause, resume, change time, dismiss visible alert, and stop-future-reminders flows in the 390x844 preview."
+      - working: true
+        agent: "testing"
+        comment: "Independent regression passed four-tab layout, local intents, FAQs, settings, 12/24-hour parsing, all reminder flows, cancel no-op, and no chat persistence."
   - task: "Chat reminder and Calendar action safety"
     implemented: true
     working: true
     file: "/app/frontend/services/reminderActions.ts"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "All schedule changes require medicine selection; pause/resume/change/stop require explicit confirmation and state that reminders do not alter prescriptions."
+      - working: false
+        agent: "testing"
+        comment: "Dev login with stale Calendar IDs attempted an unauthorized Calendar delete before completing the local update."
+      - working: true
+        agent: "main"
+        comment: "No-token Calendar deletion now queues event-ID-only cleanup locally without a network request; preview verified clear non-blocking user messaging."
 metadata:
   created_by: "main_agent"
-  version: "1.3"
+  version: "1.4"
   test_sequence: 4
   run_ui: true
 test_plan:
   current_focus:
-    - "Deterministic local MedicPal chatbot"
-    - "Chat reminder and Calendar action safety"
+    - "User verification of deterministic MedicPal helper"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
@@ -221,3 +229,7 @@ agent_communication:
     message: "Implemented a web-only body portal while preserving native Modal behavior. Final browser checks passed symptom, appointment, vault, and clear-data flows."
   - agent: "main"
     message: "Added the fourth Chat tab with local intent matching, app FAQs, app setting controls, medicine selection, safe confirmations, and verified reminder state persistence."
+  - agent: "testing"
+    message: "Independent Chat regression passed; reported unauthorized Calendar cleanup in the no-token development profile."
+  - agent: "main"
+    message: "Fixed no-token cleanup to queue Calendar event IDs locally. Final self-test confirmed no remote call and clear user messaging."

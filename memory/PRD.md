@@ -78,6 +78,7 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - Added on-device settings actions for spoken help, text sizing, and high contrast.
 - Added medicine-specific pause, resume, visible-alert dismissal, time changes, and future reminder stopping.
 - Reminder actions update local notifications and connected Google Calendar events while preserving medicine history and clearly separating reminder changes from medical decisions.
+- When Google access is unavailable, Calendar deletion stores only event IDs in the existing offline queue and clearly tells the user that Calendar sync is unavailable; it does not make an unauthorized network request.
 - Added reminder state persistence and paused/stopped status cues on medicine cards.
 - Verified all deterministic chat paths, confirmation boundaries, data minimization copy, and four-tab mobile layout.
 

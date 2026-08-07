@@ -62,14 +62,17 @@ export function useMedicPalChat() {
     setSelected(medicine);
     if (action === "dismiss") { const count = await dismissMedicineAlert(medicine.id); add("assistant", count ? `Dismissed the visible ${medicine.name} alert. Future reminders stay on.` : `No visible ${medicine.name} alert was found. Future reminders stay on.`); reset(); return; }
     if (action === "change_time") { if (medicine.schedule.length > 1) { setPhase("select_schedule"); add("assistant", "Which reminder time should change?"); } else askForTime(medicine, 0); return; }
-    const copy = action === "pause" ? `Pause ${medicine.name} reminders and Calendar events until you resume them?` : action === "resume" ? `Resume ${medicine.name} reminders and Calendar events?` : `Stop all future ${medicine.name} reminders and Calendar events? The medicine stays in your history.`;
+    const calendarTarget = profile?.accessToken ? " and connected Calendar events" : "";
+    const calendarUnavailable = profile?.accessToken ? "" : " Calendar sync is unavailable in this session.";
+    const copy = action === "pause" ? `Pause ${medicine.name} reminders${calendarTarget} until you resume them?${calendarUnavailable}` : action === "resume" ? `Resume ${medicine.name} reminders${calendarTarget}?${calendarUnavailable}` : `Stop all future ${medicine.name} reminders${calendarTarget}? The medicine stays in your history.${calendarUnavailable}`;
     setConfirmation({ title: action === "stop" ? "Stop future reminders?" : `${action === "pause" ? "Pause" : "Resume"} reminders?`, text: `${copy} This changes reminders only—not your prescription or medical care.`, label: action === "stop" ? "Stop future reminders" : action === "pause" ? "Pause reminders" : "Resume reminders", danger: action === "stop" });
-  }, [action, add, askForTime, medicines, reset]);
+  }, [action, add, askForTime, medicines, profile?.accessToken, reset]);
 
   const acceptTime = useCallback((text: string) => {
     const parsed = parseReminderTime(text); if (!parsed || !selected) { add("assistant", "I could not read that time. Try “8:30 AM”, “1 PM”, or “20:30”."); return; }
-    setNextTime(parsed); setConfirmation({ title: "Change reminder time?", text: `Change ${selected.name} from ${displayTime(selected.schedule[scheduleIndex].time)} to ${displayTime(parsed)}? This updates its local alert and connected Calendar events.`, label: "Change reminder time", danger: false });
-  }, [add, scheduleIndex, selected]);
+    const calendarCopy = profile?.accessToken ? " and connected Calendar events" : ". Calendar sync is unavailable in this session";
+    setNextTime(parsed); setConfirmation({ title: "Change reminder time?", text: `Change ${selected.name} from ${displayTime(selected.schedule[scheduleIndex].time)} to ${displayTime(parsed)}? This updates its local alert${calendarCopy}.`, label: "Change reminder time", danger: false });
+  }, [add, profile?.accessToken, scheduleIndex, selected]);
 
   const confirmAction = useCallback(async () => {
     if (!selected || !action) return; setWorking(true); setConfirmation(null);
@@ -80,7 +83,8 @@ export function useMedicPalChat() {
       if (action === "stop") updated = await stopMedicineReminders(selected, profile?.accessToken || "");
       if (action === "change_time") updated = await changeMedicineTime(selected, scheduleIndex, nextTime, profile?.accessToken || "");
       setMedicines((items) => items.map((item) => item.id === updated.id ? updated : item));
-      const response = action === "pause" ? `${selected.name} reminders are paused.` : action === "resume" ? `${selected.name} reminders are active again.` : action === "stop" ? `Future ${selected.name} reminders and Calendar events are stopped. This does not mean you should stop prescribed medicine.` : `${selected.name} now reminds you at ${displayTime(nextTime)}.`;
+      const calendarNote = profile?.accessToken ? "" : " Calendar sync was unavailable in this session.";
+      const response = action === "pause" ? `${selected.name} reminders are paused.${calendarNote}` : action === "resume" ? `${selected.name} reminders are active again.${calendarNote}` : action === "stop" ? `Future ${selected.name} reminders are stopped.${calendarNote} This does not mean you should stop prescribed medicine.` : `${selected.name} now reminds you at ${displayTime(nextTime)}.${calendarNote}`;
       add("assistant", response);
     } catch { add("assistant", "I could not complete that reminder change. Your saved medicine details were kept."); }
     finally { setWorking(false); reset(); }
