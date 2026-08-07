@@ -7,7 +7,7 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - **Mobile:** Expo SDK 54, React Native, TypeScript, Expo Router, safe-area-aware four-tab navigation: Home, Scan, Chat, Settings.
 - **Local source of truth:** Expo SQLite on iOS/Android; AsyncStorage fallback for web preview. Medicines, symptom logs, appointments, base64 document photos, schedules, Calendar IDs, notification IDs, and offline Calendar operations are persisted locally.
 - **Backend:** FastAPI AI proxy. Universal Key credentials remain server-side; medicine images and symptom requests are validated and return strict Pydantic response shapes.
-- **Integrations:** GPT-5.4 medicine text extraction and symptom visit prep through Emergent Universal Key, custom Google OAuth with Calendar scope, Google Calendar REST API, Expo Notifications, Expo Camera, Image Picker/Manipulator, Speech, Haptics, and Google user profile access.
+- **Integrations:** Gemini 2.5 Flash medicine text extraction with protected server-side credentials, GPT-5.4 symptom visit prep through Emergent Universal Key, custom Google OAuth with Calendar scope, Google Calendar REST API, Expo Notifications, Expo Camera, Image Picker/Manipulator, Speech, Haptics, and Google user profile access.
 - **Offline behavior:** Medicine viewing/editing, deterministic chat matching, app FAQs, settings changes, and local storage work offline. Calendar operations queue when offline. AI label/insight features require connectivity.
 
 ## User Personas
@@ -81,6 +81,10 @@ MedicPal is a local-first mobile health organizer. It helps people photograph me
 - When Google access is unavailable, Calendar deletion stores only event IDs in the existing offline queue and clearly tells the user that Calendar sync is unavailable; it does not make an unauthorized network request.
 - Added reminder state persistence and paused/stopped status cues on medicine cards.
 - Verified all deterministic chat paths, confirmation boundaries, data minimization copy, and four-tab mobile layout.
+
+### 2026-08-07 — Gemini Credential Configuration
+- Added the user-provided Gemini credential to the FastAPI environment only; it is never bundled into Expo.
+- Verified the medicine label endpoint extracted a test medicine name, dosage, and expiry date successfully through Gemini.
 
 ## Prioritized Backlog
 
