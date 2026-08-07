@@ -1,0 +1,80 @@
+{
+  "summary": "Backend regression passed for symptom-insights safety contract, urgent warning behavior, and analyze-medicine fallback path. Frontend mobile web loaded and home/tabs/card layout checks passed, but critical modal form flows (symptom/appointment) were blocked in automation due off-viewport hidden modal action buttons.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "HealthSheet modal actions",
+        "issue": "After tapping Log a symptom/Add appointment, form action buttons are detected but remain outside viewport (not interactable) in web preview automation; form cannot be submitted.",
+        "testID": "save-symptom-button, save-appointment-button",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Symptom form validation + local save + AI insight rendering + persistence",
+        "issue": "Blocked because save action in modal could not be interacted with in web preview automation.",
+        "affected_testIDs": [
+          "log-symptom-button",
+          "symptom-form-sheet",
+          "save-symptom-button"
+        ]
+      },
+      {
+        "flow": "Timeline appointment add and merged chronology verification",
+        "issue": "Blocked because appointment save action in modal could not be interacted with in web preview automation.",
+        "affected_testIDs": [
+          "add-appointment-button",
+          "appointment-form-sheet",
+          "save-appointment-button"
+        ]
+      },
+      {
+        "flow": "Vault add document and logout-clear-data full chain",
+        "issue": "Not fully verifiable in this run because prerequisite modal form submissions were blocked.",
+        "affected_testIDs": [
+          "add-vault-document-button",
+          "save-vault-document-button",
+          "logout-button",
+          "confirm-logout-button"
+        ]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_medicpal_api.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/ui_iteration_3/home_loaded_mobile.jpg",
+    "/app/test_reports/ui_iteration_3/failure_state.jpg",
+    "/app/test_reports/ui_iteration_3/secondary_pass_failure.jpg"
+  ],
+  "action_items": [
+    "Fix HealthSheet/modal interaction state on Expo web so save buttons are truly visible/clickable after opening symptom and appointment forms.",
+    "Add a deterministic visible-state selector for opened sheets (e.g., sheet-content testID rendered only when visible) to avoid false-positive hidden element matches.",
+    "Re-run full mobile web regression for symptom->timeline->vault->logout clear-data chain after modal fix."
+  ],
+  "critical_code_review_comments": [
+    "Backend /api/health response contract is now {status, scan_configured, insights_configured}; prior test expectation using gemini_configured was outdated and has been corrected.",
+    "Symptom safety contract is enforced server-side with strict response model and explicit safety_notice; urgent keyword regex path is implemented.",
+    "Missing file noted: /app/auth_testing.md (referenced by testing instructions) is not present.",
+    "Development login bypass is intentionally MOCKED for auth profile creation; Google Calendar path is intentionally unavailable there."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_medicpal_api.py",
+    "/app/test_reports/iteration_3.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "40%"
+  },
+  "seed_data_creation": "No persistent backend seed data created. Temporary UI actions were not completed due modal interaction blocker.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Use public preview URL. Backend tests pass with EXPO_BACKEND_URL sourced from frontend/.env EXPO_PUBLIC_BACKEND_URL. UI automation repeatedly hit hidden/off-viewport modal save controls; stop after repeated selector retries and validate modal visibility mechanics first.",
+  "rca_of_issue": "Reproduction: open Symptoms or Timeline, tap Log/Add, then attempt save button click. Playwright resolves save button testID but reports 'Element is outside of the viewport'. Likely cause: modal children/testIDs remain queryable while sheet is not actually visible/open in web context (or opens with unusable viewport position). Mitigation: gate form controls by visible state, expose explicit visible sheet root testID, and verify modal open transition completion before interactions."
+}

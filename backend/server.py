@@ -2,6 +2,8 @@ import base64
 import json
 import logging
 import os
+import re
+from uuid import uuid4
 from pathlib import Path
 from typing import Optional
 
@@ -9,6 +11,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from dotenv import load_dotenv
+from emergentintegrations.llm.chat import ImageContent, LlmChat, StreamDone, TextDelta, UserMessage
 from fastapi import APIRouter, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
@@ -36,6 +39,20 @@ class MedicineScanResult(BaseModel):
     frequency_hint: Optional[str] = None
 
 
+class SymptomInsightRequest(BaseModel):
+    symptom: str = Field(min_length=2, max_length=120)
+    severity: int = Field(ge=1, le=10)
+    duration: str = Field(min_length=1, max_length=80)
+    notes: str = Field(default="", max_length=600)
+
+
+class SymptomInsightResult(BaseModel):
+    summary: str
+    questions: list[str] = Field(min_length=2, max_length=4)
+    safety_notice: str
+    urgent_warning: Optional[str] = None
+
+
 SCAN_PROMPT = """
 You are reading visible printed text from medicine packaging. The image may show
 a box, bottle, blister strip, prescription, or label. Return only JSON matching
@@ -50,6 +67,70 @@ important than completeness. Never identify loose pills or tablets from shape,
 color, markings, or appearance alone. If no medicine name is clearly readable
 as printed text, medicine_name must be null. Do not provide medical advice.
 """.strip()
+
+SYMPTOM_SYSTEM_PROMPT = """
+You help a patient prepare concise notes for a licensed clinician. You never
+diagnose, name likely conditions, estimate probabilities, recommend treatment,
+or tell the patient to change medication. Return only valid JSON with keys
+"summary" and "questions". The summary must neutrally restate the patient's
+own report in 1-2 short sentences. Questions must contain 2-4 practical,
+non-leading questions the patient can ask a clinician. Do not add facts.
+""".strip()
+
+URGENT_PATTERNS = re.compile(
+    r"chest pain|cannot breathe|can't breathe|severe bleeding|unconscious|"
+    r"one-sided weakness|face droop|suicid|seizure|anaphylaxis",
+    re.IGNORECASE,
+)
+
+
+def _clean_json_text(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned)
+    return cleaned
+
+
+async def _create_symptom_insight(payload: SymptomInsightRequest) -> SymptomInsightResult:
+    api_key = os.getenv("EMERGENT_LLM_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI insights are not configured")
+    urgent_warning = None
+    combined = f"{payload.symptom} {payload.notes}"
+    if URGENT_PATTERNS.search(combined):
+        urgent_warning = (
+            "This report may describe an emergency. Contact local emergency services "
+            "now or seek urgent in-person help. Do not wait for an AI summary."
+        )
+    user_text = (
+        f"Symptom: {payload.symptom}\nSeverity: {payload.severity}/10\n"
+        f"Duration: {payload.duration}\nAdditional notes: {payload.notes or 'None provided'}"
+    )
+    chat = LlmChat(
+        api_key=api_key,
+        session_id=f"symptom-{uuid4()}",
+        system_message=SYMPTOM_SYSTEM_PROMPT,
+    ).with_model("openai", "gpt-5.4")
+    chunks: list[str] = []
+    try:
+        async for event in chat.stream_message(UserMessage(text=user_text)):
+            if isinstance(event, TextDelta):
+                chunks.append(event.content)
+            elif isinstance(event, StreamDone):
+                break
+        data = json.loads(_clean_json_text("".join(chunks)))
+        return SymptomInsightResult(
+            summary=data["summary"],
+            questions=data["questions"],
+            safety_notice="This AI note is not a diagnosis or medical advice.",
+            urgent_warning=urgent_warning,
+        )
+    except (KeyError, TypeError, json.JSONDecodeError, ValueError) as exc:
+        logger.warning("Symptom insight parsing failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=502, detail="AI insight could not be prepared. Please try again.") from exc
+    except Exception as exc:
+        logger.warning("Symptom insight request failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=502, detail="AI insight is temporarily unavailable. Your symptom can still be saved locally.") from exc
 
 
 def _analyze_with_gemini(payload: MedicineScanRequest) -> MedicineScanResult:
@@ -114,6 +195,33 @@ def _analyze_with_gemini(payload: MedicineScanRequest) -> MedicineScanResult:
         ) from exc
 
 
+async def _analyze_with_universal_key(payload: MedicineScanRequest) -> MedicineScanResult:
+    api_key = os.getenv("EMERGENT_LLM_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="Medicine scanning is not configured")
+    try:
+        base64.b64decode(payload.image_base64, validate=True)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid image data") from exc
+    chat = LlmChat(
+        api_key=api_key,
+        session_id=f"medicine-scan-{uuid4()}",
+        system_message="Return only valid JSON. Follow the user's extraction and safety rules exactly.",
+    ).with_model("openai", "gpt-5.4")
+    chunks: list[str] = []
+    try:
+        message = UserMessage(text=SCAN_PROMPT, file_contents=[ImageContent(payload.image_base64)])
+        async for event in chat.stream_message(message):
+            if isinstance(event, TextDelta):
+                chunks.append(event.content)
+            elif isinstance(event, StreamDone):
+                break
+        return MedicineScanResult(**json.loads(_clean_json_text("".join(chunks))))
+    except Exception as exc:
+        logger.warning("Universal medicine scan failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=502, detail="We could not read this label. Check your connection and try again.") from exc
+
+
 @api_router.get("/")
 async def root():
     return {"service": "MedicPal", "status": "ready"}
@@ -121,12 +229,19 @@ async def root():
 
 @api_router.get("/health")
 async def health():
-    return {"status": "healthy", "gemini_configured": bool(os.getenv("GEMINI_API_KEY"))}
+    return {"status": "healthy", "scan_configured": bool(os.getenv("GEMINI_API_KEY") or os.getenv("EMERGENT_LLM_KEY")), "insights_configured": bool(os.getenv("EMERGENT_LLM_KEY"))}
 
 
 @api_router.post("/analyze-medicine", response_model=MedicineScanResult)
 async def analyze_medicine(payload: MedicineScanRequest):
-    return await run_in_threadpool(_analyze_with_gemini, payload)
+    if os.getenv("GEMINI_API_KEY"):
+        return await run_in_threadpool(_analyze_with_gemini, payload)
+    return await _analyze_with_universal_key(payload)
+
+
+@api_router.post("/symptom-insights", response_model=SymptomInsightResult)
+async def symptom_insights(payload: SymptomInsightRequest):
+    return await _create_symptom_insight(payload)
 
 
 app.include_router(api_router)

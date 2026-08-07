@@ -41,3 +41,50 @@ export interface PendingScan {
   photoUri: string;
   result: ScanResult;
 }
+
+export interface SymptomInsight {
+  summary: string;
+  questions: string[];
+  safety_notice: string;
+  urgent_warning: string | null;
+}
+
+export interface SymptomLog {
+  id: string;
+  symptom: string;
+  severity: number;
+  duration: string;
+  notes: string;
+  occurredAt: string;
+  createdAt: string;
+  insight: SymptomInsight | null;
+}
+
+export type DocumentCategory = "Prescription" | "Lab result" | "Scan report" | "Other";
+
+export interface VaultDocument {
+  id: string;
+  title: string;
+  category: DocumentCategory;
+  imageBase64: string;
+  mimeType: "image/jpeg";
+  documentDate: string;
+  createdAt: string;
+}
+
+export interface HealthAppointment {
+  id: string;
+  title: string;
+  clinician: string;
+  appointmentAt: string;
+  notes: string;
+  createdAt: string;
+}
+
+export type TimelineEvent = {
+  id: string;
+  type: "symptom" | "medicine" | "document" | "appointment";
+  title: string;
+  description: string;
+  date: string;
+};

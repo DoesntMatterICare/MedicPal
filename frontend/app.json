@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.emergent.medicpalhealth.k7ztqx",
       "infoPlist": {
         "NSCameraUsageDescription": "Photograph medicine labels for reminders.",
-        "NSPhotoLibraryUsageDescription": "Choose medicine packaging photos for reminders."
+        "NSPhotoLibraryUsageDescription": "Choose health documents for your private vault."
       }
     },
     "android": {

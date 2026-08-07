@@ -101,3 +101,80 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Build Smart Symptom Logging with AI Insights, a Unified Health Timeline, and a Secure Document & Prescription Vault. AI output must be non-diagnostic; documents stay local as base64."
+backend:
+  - task: "Non-diagnostic symptom insights API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Verified POST /api/symptom-insights returns structured summary, 2-4 doctor questions, and safety notice using GPT-5.4."
+  - task: "Medicine scanner fallback after fork environment loss"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Verified a generated medicine label JPEG returns strict extraction JSON through the protected Universal Key fallback."
+frontend:
+  - task: "Smart symptom logging and AI visit prep"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/symptoms/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Browser walkthrough saved a symptom locally and rendered the returned AI insight."
+  - task: "Unified health timeline"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/timeline/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Browser walkthrough displayed symptom and appointment events in chronological order."
+  - task: "Local base64 document vault"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/vault/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Browser walkthrough selected an image, stored base64 locally, and rendered the saved vault card."
+metadata:
+  created_by: "main_agent"
+  version: "1.1"
+  test_sequence: 1
+  run_ui: true
+test_plan:
+  current_focus:
+    - "Non-diagnostic symptom insights API"
+    - "Smart symptom logging and AI visit prep"
+    - "Unified health timeline"
+    - "Local base64 document vault"
+    - "Medicine scanner fallback after fork environment loss"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+agent_communication:
+  - agent: "main"
+    message: "Implementation, lint, TypeScript, backend curl, and browser walkthrough are complete. Please run final regression testing, including local persistence and AI safety language."

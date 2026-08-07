@@ -1,10 +1,11 @@
 import { useFocusEffect, router } from "expo-router";
-import { CalendarDays, Camera, ShieldCheck } from "lucide-react-native";
+import { CalendarDays, Camera, FolderLock, HeartPulse, History, ShieldCheck } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BigButton } from "@/components/BigButton";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { HealthActionCard } from "@/components/HealthActionCard";
 import { MedicineCard } from "@/components/MedicineCard";
 import { Speakable } from "@/components/Speakable";
 import { listMedicines, saveMedicine } from "@/services/db";
@@ -42,7 +43,7 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={<Text style={[styles.sectionTitle, { fontSize: Math.max(22, fontSize + 4) }]}>Today&apos;s medicines</Text>}
+        ListHeaderComponent={<View testID="health-tools-section" style={styles.tools}><View><Text testID="health-tools-heading" style={[styles.sectionTitle, { fontSize: Math.max(22, fontSize + 4) }]}>Your health organizer</Text><Text style={styles.sectionSubtitle}>Keep useful details together for your next visit.</Text></View><HealthActionCard testID="open-symptom-logger-button" title="Log a symptom" description="Record changes and prepare questions for your doctor." icon={HeartPulse} accent="orange" onPress={() => router.push("/symptoms")} /><HealthActionCard testID="open-health-timeline-button" title="Health timeline" description="See medicines, symptoms, visits, and records by date." icon={History} onPress={() => router.push("/timeline")} /><HealthActionCard testID="open-document-vault-button" title="Document vault" description="Keep prescriptions and health documents on this device." icon={FolderLock} onPress={() => router.push("/vault")} /><Text testID="today-medicines-heading" style={[styles.sectionTitle, styles.medicineHeading, { fontSize: Math.max(22, fontSize + 4) }]}>Today&apos;s medicines</Text></View>}
         renderItem={({ item }) => <MedicineCard medicine={item} onOpen={() => router.push(`/medicine/${item.id}`)} onToggle={() => toggleTaken(item)} />}
         ListEmptyComponent={
           <View testID="empty-medicines-state" style={styles.empty}>
@@ -67,8 +68,9 @@ const styles = StyleSheet.create({
   greeting: { color: colors.text, lineHeight: 34, fontWeight: "900" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   date: { color: colors.textSecondary, fontSize: 17, fontWeight: "700" },
-  list: { padding: 20, paddingBottom: 130, gap: 14 },
+  list: { padding: 20, paddingBottom: 130, gap: 14 }, tools: { gap: 13, marginBottom: 5 },
   sectionTitle: { color: colors.text, fontWeight: "900", marginBottom: 4 },
+  sectionSubtitle: { color: colors.textSecondary, fontSize: 16, lineHeight: 22 }, medicineHeading: { marginTop: 11 },
   empty: { backgroundColor: colors.white, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: 24, alignItems: "center", marginTop: 8 },
   cameraCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.card, alignItems: "center", justifyContent: "center", marginBottom: 18 },
   emptyTitle: { color: colors.text, fontSize: 23, fontWeight: "900", textAlign: "center" },
