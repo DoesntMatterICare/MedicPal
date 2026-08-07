@@ -48,6 +48,12 @@ export default function LoginScreen() {
       doctorName: "",
       doctorPhone: "",
       emergencyNumber: "112",
+      medicalFullName: "Dev Tester",
+      dateOfBirth: "",
+      bloodGroup: "",
+      allergies: "",
+      medicalConditions: "",
+      preferredLanguage: "English",
     });
     speak("Development login complete");
     router.replace("/(tabs)");
@@ -64,7 +70,7 @@ export default function LoginScreen() {
         await saveProfile({
           googleId: user.sub, name: user.given_name || user.name || "Friend", email: user.email,
           photoUrl: user.picture || "", accessToken: token, language: language || "en",
-          fontSize: 18, highContrast: true, ttsEnabled: true, caregiverPhone: "", doctorName: "", doctorPhone: "", emergencyNumber: "112",
+          fontSize: 18, highContrast: true, ttsEnabled: true, caregiverPhone: "", doctorName: "", doctorPhone: "", emergencyNumber: "112", medicalFullName: user.given_name || user.name || "", dateOfBirth: "", bloodGroup: "", allergies: "", medicalConditions: "", preferredLanguage: "English",
         });
         speak("Signed in. Your medicines are safe.");
         router.replace("/(tabs)");

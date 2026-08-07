@@ -33,6 +33,19 @@ export interface UserProfile {
   doctorName?: string;
   doctorPhone?: string;
   emergencyNumber?: string;
+  medicalFullName?: string;
+  dateOfBirth?: string;
+  bloodGroup?: string;
+  allergies?: string;
+  medicalConditions?: string;
+  preferredLanguage?: string;
+}
+
+export interface TravelCheckIn {
+  destination: string;
+  expectedAt: string;
+  notificationId: string;
+  createdAt: string;
 }
 
 export interface ScanResult {

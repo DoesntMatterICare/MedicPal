@@ -24,6 +24,7 @@ function AppStack() {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const id = response.notification.request.content.data?.medicineId;
       if (typeof id === "string") router.push(`/reminder/${id}`);
+      if (response.notification.request.content.data?.kind === "travel-check-in") router.push("/sos");
     });
     return () => subscription.remove();
   }, [router]);

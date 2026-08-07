@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { Phone, Stethoscope, UserRound, X } from "lucide-react-native";
+import { Phone, ShieldAlert, Stethoscope, UserRound, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { BigButton } from "@/components/BigButton";
@@ -30,6 +30,7 @@ export function EmergencyButton({ testID }: { testID: string }) {
       </View>
       <HealthSheet visible={open} title="Who would you like to call?" onClose={() => setOpen(false)} testID="contact-call-sheet">
         <View testID="call-contact-privacy-note" style={styles.note}><Phone size={24} color={colors.primary} /><Text style={styles.noteText}>MedicPal opens your phone dialler only after you choose a saved contact.</Text></View>
+        <BigButton testID="open-travel-sos-button" label="I feel unwell while travelling" icon={ShieldAlert} variant="danger" onPress={() => { setOpen(false); router.push("/sos"); }} />
         <View testID="caregiver-call-option" style={styles.contact}><View style={styles.contactIcon}><UserRound size={26} color={colors.primary} /></View><View style={styles.contactCopy}><Text style={styles.contactTitle}>Caregiver</Text><Text style={styles.contactValue}>{caregiverPhone || "No caregiver number saved"}</Text></View></View>
         <BigButton testID="call-caregiver-button" label="Call caregiver" icon={Phone} disabled={!caregiverPhone} onPress={() => call(caregiverPhone, "your caregiver")} />
         <View testID="doctor-call-option" style={styles.contact}><View style={styles.contactIcon}><Stethoscope size={26} color={colors.primary} /></View><View style={styles.contactCopy}><Text style={styles.contactTitle}>{profile?.doctorName?.trim() || "Family or personal doctor"}</Text><Text style={styles.contactValue}>{doctorPhone || "No doctor number saved"}</Text></View></View>
