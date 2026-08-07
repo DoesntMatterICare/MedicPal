@@ -1,0 +1,138 @@
+{
+  "theme_archetype": "Archetype 1: ORGANIC & EARTHY (Trust, Growth, Calm)",
+  "rationale": "For a mobile health app (MedicPal) handling sensitive data like symptoms and documents, the UI must evoke trust and calm, avoiding the 'cold clinical' look. Organic textures, warm sand backgrounds, and deep forest green accents create a grounded, private, and safe environment.",
+  "typography": {
+    "headings": {
+      "font_family": "Manrope, sans-serif",
+      "rationale": "Friendly, geometric sans-serif that remains highly legible but has a softer, more humanistic touch than Inter.",
+      "scales": {
+        "h1": "text-3xl tracking-tight leading-tight font-bold",
+        "h2": "text-2xl tracking-tight leading-snug font-semibold",
+        "h3": "text-xl font-semibold",
+        "h4": "text-lg font-medium"
+      }
+    },
+    "body": {
+      "font_family": "Figtree, sans-serif",
+      "rationale": "Clean, modern, and highly legible for data-heavy views (like symptom timeline and AI insights).",
+      "scales": {
+        "base": "text-base leading-relaxed",
+        "small": "text-sm leading-normal text-muted-foreground",
+        "label": "text-xs font-semibold uppercase tracking-[0.05em]"
+      }
+    }
+  },
+  "colors": {
+    "background": {
+      "default": "#F9F8F6",
+      "description": "Warm Sand / Bone White - Replaces clinical pure white backgrounds."
+    },
+    "surface": {
+      "default": "#FFFFFF",
+      "description": "Pure white for cards and floating sheets to maintain contrast against the sand background."
+    },
+    "primary": {
+      "default": "#214C3A",
+      "hover": "#1A3B2D",
+      "foreground": "#FFFFFF",
+      "description": "Deep Forest Green - Grounded, trustworthy color for primary CTAs and active states."
+    },
+    "accent": {
+      "default": "#D4A373",
+      "foreground": "#1A1D1A",
+      "description": "Soft Ochre / Terracotta - Used specifically for AI Insights and suggested questions to distinguish them from standard user data."
+    },
+    "text": {
+      "primary": "#1A1D1A",
+      "secondary": "#5E635C",
+      "description": "Tinted greys with subtle green undertones. Never use pure black (#000000)."
+    },
+    "timeline_nodes": {
+      "symptom": "#E57373",
+      "document": "#64B5F6",
+      "ai_summary": "#D4A373",
+      "appointment": "#81C784"
+    }
+  },
+  "visual_enhancers": {
+    "surface_strategy": "Flat Solid surfaces with soft borders. For health apps, glassmorphism causes 'visual refraction' of data. Use solid `#FFFFFF` cards with a subtle 1px border (`border-[#EAE8E3]`) and no dropshadow, or very faint ambient shadow (`shadow-sm`).",
+    "border_radius": "Concentric and friendly. Cards: `rounded-[24px]`. Buttons: `rounded-full` (pill shape) or `rounded-[16px]`. Bottom Sheets: `rounded-t-[32px]`.",
+    "textures": "Subtle noise or organic textures in empty states or hero headers to kill the digital flatness."
+  },
+  "components": {
+    "mobile_container": {
+      "classes": "w-full max-w-md mx-auto h-[100dvh] flex flex-col bg-[#F9F8F6] relative overflow-hidden sm:ring-1 sm:ring-gray-200 sm:shadow-2xl sm:my-8 sm:rounded-[40px]",
+      "description": "Simulates a mobile app view on desktop browsers while filling the screen on actual mobile devices."
+    },
+    "bottom_navigation": {
+      "classes": "fixed bottom-0 w-full max-w-md bg-white border-t border-[#EAE8E3] pb-safe pt-2 px-6 flex justify-between items-center z-50",
+      "active_state": "text-[#214C3A] font-semibold",
+      "inactive_state": "text-[#5E635C]"
+    },
+    "health_timeline": {
+      "structure": "A vertical list with a continuous left border (`border-l-2 border-[#EAE8E3]`).",
+      "nodes": "Absolute positioned circular dots on the border line. Colored based on the event type (symptom, document, AI summary)."
+    },
+    "ai_insight_card": {
+      "classes": "bg-[#FDF8F3] border border-[#D4A373]/30 rounded-[24px] p-5",
+      "description": "Highlights AI-generated non-diagnostic summaries or doctor questions. Must look visually distinct from user-entered data."
+    },
+    "document_vault_grid": {
+      "classes": "grid grid-cols-2 gap-4",
+      "description": "Bento-style grid for document thumbnails. Uses `aspect-square` or `aspect-[3/4]` for document previews."
+    },
+    "bottom_sheet": {
+      "component": "Shadcn Drawer",
+      "description": "Use Vaul/Shadcn Drawer instead of Modals for all 'Add' actions (Log Symptom, Add Document) to maintain native mobile ergonomics."
+    }
+  },
+  "layouts": {
+    "spacing_system": "Generous touch targets. Buttons must be at least `h-14`. Internal padding of cards should be `p-5` or `p-6`.",
+    "page_structure": "Header (Title, Avatar, no back button on root tabs) -> Scrollable Content Area (`flex-1 overflow-y-auto pb-24 px-4`) -> Bottom Navigation."
+  },
+  "motion": {
+    "transitions": "Snappy, spring-based transitions for bottom sheets. Subtle scaling (`active:scale-95`) for buttons.",
+    "loading": "Skeleton loaders for Timeline and Vault instead of spinners. Fade-in for AI insights."
+  },
+  "accessibility": {
+    "contrast": "Ensure AI Accent text (#D4A373) is only used for backgrounds or borders, use dark text on top of it. Buttons must use high contrast #FFFFFF on #214C3A.",
+    "touch_targets": "Minimum 48x48px for all interactive elements.",
+    "data_testid": "ALL interactive and key informational elements MUST include a `data-testid` attribute (e.g., `data-testid='log-symptom-button'`)."
+  },
+  "media": {
+    "icons": "lucide-react (stroke-width 2 or 2.5 for better mobile legibility).",
+    "image_urls": {
+      "empty_state_texture": {
+        "url": "https://images.unsplash.com/photo-1602536052359-ef94c21c5948?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHw0fHxhYnN0cmFjdCUyMGVhcnRoeSUyMHRleHR1cmUlMjBsaWdodHxlbnwwfHx8fDE3ODYwOTA0NTF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "White and gray abstract painting to be used as a very low opacity background for the AI Insights header or Empty States."
+      },
+      "document_placeholder": {
+        "url": "https://images.unsplash.com/photo-1631557776808-91908aba7ca0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwzfHxtZWRpY2FsJTIwZG9jdW1lbnQlMjBhYnN0cmFjdHxlbnwwfHx8fDE3ODYwOTA0NTF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "A pen on a pile of papers, used as a placeholder thumbnail in the Secure Document Vault if a user hasn't uploaded a photo."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "This is a mobile app (MedicPal). You MUST enforce a mobile viewport layout. Wrap the main application in a mobile container: `w-full max-w-md mx-auto h-[100dvh] flex flex-col relative overflow-hidden sm:ring-1 sm:shadow-2xl sm:my-8 sm:rounded-[40px]`.",
+    "DO NOT use generic top navbars. Navigation MUST be a fixed Bottom Tab Bar.",
+    "For user inputs (Symptom Logging, Upload Document), use the Shadcn Drawer (Bottom Sheet) component instead of Dialog/Modal. This feels native on mobile.",
+    "The Health Timeline must merge Symptoms, Medicines, and Documents into a single vertical chronology.",
+    "The Document Vault must visually separate from social feeds—do not include sharing buttons. Emphasize 'Local / Secure' visually (e.g., lock icons).",
+    "Always apply `data-testid` to buttons, inputs, and tab navigation.",
+    "Use Manrope font for headings and Figtree for body. Use `flex-1 overflow-y-auto` for the middle content container, ensuring the bottom tab bar is always visible.",
+    "Do NOT use glassmorphism. Use flat solid cards with `#FFFFFF` background and subtle `#EAE8E3` borders.",
+    "Add 'pb-24' or similar padding to the bottom of scrollable areas so content isn't hidden behind the bottom tab bar."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not converge toward generic, 'on distribution' outputs. Avoid generic centered layouts and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy, but for this health app, avoid glassmorphism in favor of crisp, flat solid surfaces.",
+    "You MUST NOT apply universal transition (e.g., `transition: all`). Always add transitions for specific interactive elements.",
+    "You MUST NOT center align the app container text globally.",
+    "Always use modern button styles (pill-shaped or rounded-2xl) with interaction animations.",
+    "NEVER use AI assistant Emoji characters (like \ud83e\udd16\ud83e\udde0\ud83d\udcad\ud83d\udca1) for icons. Use lucide-react.",
+    "Every interaction needs micro-animations (active:scale-95 for buttons).",
+    "Use generous spacing. Cramped designs look cheap.",
+    "Use sonner for toasts.",
+    "Missing images must not be replaced with placeholder text; use the provided image URLs."
+  ]
+}
