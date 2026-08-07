@@ -1,9 +1,9 @@
 {
   "theme": "light",
   "typography": {
-    "headings": "System Sans-Serif",
-    "body": "System Sans-Serif",
-    "strategy": "Soft Utility pairing. Clean, readable, and highly accessible for medical contexts."
+    "headings": "System Sans-Serif, bold, minimum 24px for extreme legibility.",
+    "body": "System Sans-Serif, minimum 18px. Plain language only.",
+    "strategy": "Soft Utility pairing. Clean, hyper-readable, designed for panic or high-stress situations. Zero visual clutter."
   },
   "colors": {
     "primary": "#38BDF8",
@@ -14,64 +14,81 @@
     "surface": "#F8FAFC",
     "border": "#E2E8F0",
     "text_primary": "#0F172A",
-    "text_secondary": "#64748B"
+    "text_secondary": "#64748B",
+    "warning": "#F59E0B"
   },
   "visual_enhancers": {
-    "surfaces": "Flat Solid surfaces ONLY. Crisp borders for separation.",
-    "corners": "Soft 12px radius for standard elements.",
-    "controls": "Minimum 60dp height for all touchable controls (buttons, inputs) to ensure maximal accessibility."
+    "surfaces": "Flat Solid surfaces ONLY. Use high contrast borders for separation.",
+    "corners": "Soft 12px radius for standard elements, pill-shaped for major CTAs.",
+    "controls": "Minimum 60dp height for ALL touchable controls (buttons, inputs) for maximal motor accessibility under stress."
   },
   "components": [
     {
-      "name": "SettingsDoctorFields",
-      "description": "Text input fields for 'Family/Personal Doctor Name' and 'Doctor Phone Number' located in the Settings screen. Must be at least 60dp high."
+      "name": "I Feel Unwell Entry",
+      "description": "Massive, high-contrast entry point button for 'I feel unwell' on the Home screen and inside the existing Call popup. Triggers the Offline SOS Screen."
     },
     {
-      "name": "SettingsEmergencyNumber",
-      "description": "Text input field in Settings for editable country emergency number. Defaults to '112'."
+      "name": "Offline SOS Screen",
+      "description": "A dedicated offline-first emergency screen. Features massive touch targets for: 'Call Caregiver', 'Call Doctor', and 'Call 112' (or configured emergency number)."
     },
     {
-      "name": "CallChoiceHealthSheet",
-      "description": "A bottom sheet popup containing large accessible buttons to choose between calling Caretaker or Doctor. Must handle missing states by providing a 'Set up in Settings' link."
+      "name": "Medical Card ('Show this to a helper')",
+      "description": "A visually distinct card on the SOS Screen displaying user-approved identity, blood group, allergies, conditions, medicines (from saved list), emergency contacts, and preferred language. Read-only here."
+    },
+    {
+      "name": "Settings (Medical & Emergency)",
+      "description": "Settings screen extensions to edit Medical Card fields (Name, DOB, Blood Group, Allergies, Conditions, Language) and the Emergency Country Number (default 112)."
+    },
+    {
+      "name": "Location Share Button",
+      "description": "A distinct button in the SOS Screen to 'Share Location'. Request precise foreground location ONLY upon tap, then opens native device Share Sheet with a Google Maps link and short SOS message. NO background tracking."
+    },
+    {
+      "name": "Arrival Check-In Flow",
+      "description": "A flow to set destination and expected arrival. Uses local notification to prompt 'confirm safe'. If overdue and app is reopened, shows 'Contact caregiver' prompt. NO automatic background messaging."
+    },
+    {
+      "name": "HealthSheet",
+      "description": "A generic Bottom Sheet component used for popups (e.g., the Call popup, Check-in prompts). Must maintain 60dp touch targets."
     }
   ],
   "grids_and_layouts": {
-    "strategy": "Mobile-first accessible flexbox layout. Vertical stacks for forms with generous spacing (min 24px between field groups). Forms should be easily scannable."
+    "strategy": "Mobile-first flexbox layouts using React Native StyleSheet. Single column vertical stacks. Minimum 24px padding around critical buttons. Generous spacing (minimum 16px between elements). NO complex grids."
   },
   "motion": {
-    "strategy": "Smooth slide-up transition for the HealthSheet popup. Micro-interactions on touchable elements (opacity reduction on press)."
+    "strategy": "Minimal motion. Basic slide-up for HealthSheet and standard React Native navigation transitions. Fade-in for location share loading states."
   },
   "accessibility": {
-    "contrast": "Ensure all text passes WCAG AA (minimum 4.5:1).",
-    "touch_targets": "All buttons and inputs MUST be at least 60dp (height: 60) for motor accessibility.",
-    "test_ids": "Mandatory data-testid on all interactive elements (e.g., testID='settings-doctor-name-input', testID='call-doctor-button')."
+    "contrast": "Ensure all text passes WCAG AAA (minimum 7:1) for critical emergency text.",
+    "touch_targets": "Strict 60dp minimum height and width for all interactable elements.",
+    "test_ids": "Mandatory data-testid on all interactive elements (e.g., data-testid='i-feel-unwell-button'). Also use testID where React Native specifically requires it.",
+    "language": "Use absolute plain language. No jargon. No diagnosis. No emojis."
   },
   "icons_and_media": {
-    "strategy": "Use lucide-react-native for all icons. Avoid AI emojis.",
-    "required_icons": ["Phone", "User", "AlertCircle", "Settings", "MapPin"]
+    "strategy": "Use lucide-react-native for universal iconography. NO emojis.",
+    "required_icons": ["AlertTriangle", "Phone", "MapPin", "User", "HeartPulse", "ShieldAlert", "CheckCircle"]
   },
   "instructions_to_main_agent": [
-    "Modify the Settings screen to include fields for 'Family/Personal Doctor Name' and 'Doctor Phone Number'.",
-    "Modify the Settings screen to include an editable 'Emergency Country Number' field that defaults to '112'.",
-    "Update the existing floating Call button to open a 'HealthSheet' (bottom sheet choice popup) instead of immediately calling.",
-    "In the HealthSheet, show choices for 'Call Caregiver' and 'Call Doctor'.",
-    "If either contact is missing, clearly show the missing contact state in the HealthSheet and provide a link that navigates to the Settings screen.",
-    "Ensure location is ONLY requested when the user taps 'Share my location' (no automatic location requests).",
-    "For the 'Travel SOS' feature mentioned in the problem statement: DO NOT BUILD IT. Simply document it as a planned feature in code comments if necessary.",
-    "Preserve MedicPal's existing accessible light-blue style and ensure all controls are 60dp minimum height.",
-    "All updated or new interactive elements MUST have a testID property.",
+    "Build purely using React Native components and StyleSheet. NO web-only components (e.g., div, span).",
+    "Add a massive 'I feel unwell' button on the Home screen and the existing Call popup.",
+    "Create the 'Offline SOS Screen' containing the 'Show this to a helper' Medical Card and extreme-sized buttons for Caregiver, Doctor, and Emergency Number (112).",
+    "The Medical Card must display: Full Name, DOB, Blood Group, Allergies, Conditions, Language, and saved MedicPal medicines.",
+    "Update Settings to allow editing of the Medical Card fields and the Emergency Number.",
+    "Implement the Location Share button: request Foreground Location ONLY when tapped, grab coords, generate Google Maps link, and open `Share.share()` native sheet with a short SOS message.",
+    "Implement the optional Check-in feature: allow setting a destination/time, schedule a local push notification. When the app is reopened and time is overdue, present a HealthSheet to 'Contact caregiver'. NEVER send automatic background messages.",
+    "Ensure the app makes absolutely zero medical inferences or diagnoses. Present user data exactly as entered.",
+    "Ensure offline support: The SOS Screen and Medical Card must render perfectly without network connectivity.",
+    "Apply `data-testid` attributes to every actionable element to satisfy system requirements. Use `testID` concurrently if necessary.",
     "Ensure all instructions are applied for .js files as the environment uses JS."
   ],
   "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
-    "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends.",
-    "Do not make generic centered layouts, simplistic gradients, and uniform styling.",
-    "Create depth through layered design elements with z-index hierarchy.",
-    "Use flat solid colors for health apps (no glass).",
-    "You MUST NOT apply universal transition. Eg: transition: all.",
-    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file.",
-    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
-    "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
-    "Every interaction needs micro-animations - hover states, transitions, entrance animations.",
-    "Use sonner for toasts."
+    "GENERAL UI UX DESIGN GUIDELINES",
+    "Prioritize emergency usability above all aesthetic trends. Clarity > Creativity in this specific context.",
+    "Do not use generic centered layouts for data; use left-aligned, highly readable lists for the Medical Card.",
+    "Maintain the MedicPal light-blue style. Do not introduce harsh, unrelated colors.",
+    "Use flat solid colors for health apps (no glassmorphism).",
+    "Never use AI assistant Emoji characters.",
+    "Minimum 60dp height for all buttons.",
+    "Ensure all interactive elements have visible touch feedback (e.g., TouchableOpacity activeOpacity)."
   ]
 }
