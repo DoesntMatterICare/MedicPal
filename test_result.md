@@ -215,21 +215,27 @@ frontend:
     file: "/app/frontend/components/EmergencyButton.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Verified caregiver and doctor name/phone persist from Settings and appear as separate enabled choices in the Call sheet at 390x844."
+      - working: true
+        agent: "testing"
+        comment: "Independent focused checks passed Settings fields, persistence, Home/Settings sheet opening, missing-contact states, dismiss actions, layout fit, and existing tab navigation."
+      - working: true
+        agent: "main"
+        comment: "Completed the requested same-session both-contacts-enabled verification; both buttons were visible and enabled, with no missing-contact shortcut."
 metadata:
   created_by: "main_agent"
-  version: "1.5"
+  version: "1.6"
   test_sequence: 5
   run_ui: true
 test_plan:
   current_focus:
-    - "Caregiver and personal doctor call choices"
+    - "User verification of caregiver and doctor call choices"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
@@ -246,3 +252,5 @@ agent_communication:
     message: "Fixed no-token cleanup to queue Calendar event IDs locally. Final self-test confirmed no remote call and clear user messaging."
   - agent: "main"
     message: "Added doctor name/phone settings and a caregiver-or-doctor Call sheet. Travel SOS remains a documented future plan only."
+  - agent: "testing"
+    message: "Focused regression passed the contact feature; long-run preview automation had intermittent Metro websocket disconnects but no product UI bug was found."
